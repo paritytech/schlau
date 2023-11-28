@@ -3037,17 +3037,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "massstab"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "contract-build",
- "crypto",
- "drink",
-]
-
-[[package]]
 name = "matchers"
 version = "0.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4133,6 +4122,17 @@ dependencies = [
  "quote",
  "serde_derive_internals",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "schlau"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "contract-build",
+ "crypto",
+ "drink",
 ]
 
 [[package]]

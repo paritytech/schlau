@@ -1,9 +1,22 @@
+[workspace]
+exclude = [
+    "contracts",
+]
+
 [package]
 name = "massstab"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.44"
 clap = { version = "4.4.8", features = ["derive"] }
-color-eyre = "0.6.2"
-ink_e2e = { git = "https://github.com/paritytech/ink", branch = "at/riscv", package = "ink_e2e" }
+
+contract-build = { package = "contract-build", git = "https://github.com/paritytech/cargo-contract", branch = "at/riscv" }
+drink = { git = "https://github.com/ascjones/drink", package = "drink" }
+
+
+# ink! contracts
+crypto = { path = "./contracts/ink/crypto", features = ["ink-as-dependency"] }
+
+

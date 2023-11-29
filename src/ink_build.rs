@@ -1,20 +1,8 @@
 use contract_build::{
-    BuildArtifacts,
-    BuildMode,
-    ExecuteArgs,
-    Features,
-    ManifestPath,
-    Network,
-    OptimizationPasses,
-    OutputType,
-    Target,
-    UnstableFlags,
-    Verbosity,
+    BuildArtifacts, BuildMode, ExecuteArgs, Features, ManifestPath, Network, OptimizationPasses,
+    OutputType, Target, UnstableFlags, Verbosity,
 };
-use std::path::{
-    Path,
-    PathBuf,
-};
+use std::path::{Path, PathBuf};
 
 /// Builds the contract at `manifest_path`, returns the path to the contract
 /// Wasm build artifact.
@@ -41,16 +29,15 @@ where
         output_type: OutputType::HumanReadable,
         skip_wasm_validation: false,
         target,
-        .. Default::default()
+        ..Default::default()
     };
 
     let build_result = contract_build::execute(args)?;
 
-    let code_artifact_path =
-        build_result
-            .dest_wasm
-            .expect("Wasm code artifact not generated")
-            .canonicalize()?;
+    let code_artifact_path = build_result
+        .dest_wasm
+        .expect("Wasm code artifact not generated")
+        .canonicalize()?;
 
     Ok(code_artifact_path)
 }

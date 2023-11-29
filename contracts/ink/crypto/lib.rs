@@ -14,10 +14,7 @@ pub mod bench {
 
         #[ink(message)]
         pub fn sha3(&self, iterations: u32) {
-            use sha3::{
-                Digest,
-                Sha3_256,
-            };
+            use sha3::{Digest, Sha3_256};
 
             for i in 0..iterations {
                 let mut hasher = Sha3_256::new();

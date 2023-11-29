@@ -1,40 +1,44 @@
 use drink::{
-    pallet_balances,
-    pallet_contracts,
-    runtime::Runtime as RuntimeT,
-    Sandbox,
-    DEFAULT_GAS_LIMIT,
+    frame_support::traits::fungible::Inspect, BalanceOf,
+    pallet_balances, pallet_contracts, runtime::{AccountIdFor, Runtime as RuntimeT}, Sandbox, DEFAULT_GAS_LIMIT,
 };
 use ink_env::{
     call::{
-        utils::{
-            ReturnType,
-            Set,
-            Unset,
-        },
-        CreateBuilder,
-        ExecutionInput,
+        utils::{ReturnType, Set, Unset},
+        CreateBuilder, ExecutionInput,
     },
     Environment,
 };
+use parity_scale_codec::Encode;
 use std::marker::PhantomData;
 use subxt_signer::sr25519::dev;
 
-pub struct DrinkApi<AccountId, Hash, Runtime: RuntimeT> {
+type ContractsBalanceOf<R> =
+<<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
+
+pub struct DrinkApi<E: Environment, Runtime: RuntimeT> {
     sandbox: Sandbox<Runtime>,
-    _phantom: PhantomData<(AccountId, Hash)>,
+    _phantom: PhantomData<E>,
 }
 
-impl<AccountId, Hash, Runtime> DrinkApi<AccountId, Hash, Runtime>
+impl<E, Runtime> DrinkApi<E, Runtime>
 where
-    AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-    Hash: Copy + From<[u8; 32]>,
+    E: Environment<
+        AccountId = AccountIdFor<Runtime>,
+        Balance = ContractsBalanceOf<Runtime>,
+    >,
+    E::AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+    E::Hash: Copy + From<[u8; 32]>,
     Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
+    BalanceOf<Runtime>: From<u128>,
 {
     pub fn new() -> Self {
         let mut sandbox = Sandbox::new().expect("Failed to initialize Drink! sandbox");
         Self::fund_accounts(&mut sandbox);
-        DrinkApi { sandbox, _phantom: PhantomData }
+        DrinkApi {
+            sandbox,
+            _phantom: PhantomData,
+        }
     }
 
     fn fund_accounts(sandbox: &mut Sandbox<Runtime>) {
@@ -50,8 +54,8 @@ where
             dev::one(),
             dev::two(),
         ]
-            .map(|kp| kp.public_key().0)
-            .map(From::from);
+        .map(|kp| kp.public_key().0)
+        .map(From::from);
         for account in accounts.into_iter() {
             sandbox
                 .mint_into(account, TOKENS.into())
@@ -59,7 +63,21 @@ where
         }
     }
 
-    pub fn deploy_contract(&mut self, code: Vec<u8>, value: u128, constructor: &mut CreateBuilderPartial<E, Contract, Args, R>, salt: Vec<u8>, caller: [u8; 32], gas_limit: u128, storage_deposit_limit: Option<u128>) -> Result<(), String> {
+    pub fn deploy_contract<Contract, Args, R>(
+        &mut self,
+        code: Vec<u8>,
+        value: ContractsBalanceOf<Runtime>,
+        constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
+        salt: Vec<u8>,
+        caller: [u8; 32],
+        gas_limit: u128,
+        storage_deposit_limit: Option<ContractsBalanceOf<Runtime>>,
+    ) -> Result<(), String>
+    where
+        Contract: Clone,
+        Args: Encode + Clone,
+    {
+        let data = constructor_exec_input(constructor.clone());
         let result = self.sandbox.deploy_contract(
             code,
             value,
@@ -90,11 +108,12 @@ pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
 >;
 
 /// Get the encoded constructor arguments from the partially initialized `CreateBuilder`
-pub fn constructor_exec_input<E, ContractRef, Args: Encode, R>(
+pub fn constructor_exec_input<E, ContractRef, Args, R>(
     builder: CreateBuilderPartial<E, ContractRef, Args, R>,
 ) -> Vec<u8>
-    where
-        E: Environment,
+where
+    E: Environment,
+    Args: Encode,
 {
     // set all the other properties to default values, we only require the `exec_input`.
     builder

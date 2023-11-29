@@ -2,17 +2,13 @@ mod drink_api;
 mod ink_build;
 
 use contract_build::Target;
-use drink::{
-    pallet_contracts,
-    runtime::MinimalRuntime,
-    Sandbox,
-    DEFAULT_GAS_LIMIT,
-};
+use drink::{pallet_contracts, runtime::MinimalRuntime, Sandbox, DEFAULT_GAS_LIMIT};
 fn main() -> anyhow::Result<()> {
     let contract = "contracts/ink/crypto/Cargo.toml";
     let build_result = ink_build::build_contract(contract, Target::RiscV)?;
 
-    let mut sandbox = Sandbox::<MinimalRuntime>::new().expect("Failed to initialize Drink! sandbox");
+    let mut sandbox =
+        Sandbox::<MinimalRuntime>::new().expect("Failed to initialize Drink! sandbox");
 
     let code = std::fs::read(build_result)?;
     let value = 0;
@@ -34,4 +30,3 @@ fn main() -> anyhow::Result<()> {
 
     Ok(())
 }
-

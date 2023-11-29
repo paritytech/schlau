@@ -11,7 +11,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.44"
 clap = { version = "4.4.8", features = ["derive"] }
-parity-scale-codec = { version = "2.0.0" }
+parity-scale-codec = { version = "3.6.9" }
 subxt-signer = "0.32.1"
 
 contract-build = { package = "contract-build", git = "https://github.com/paritytech/cargo-contract", branch = "at/riscv" }

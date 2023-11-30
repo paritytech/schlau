@@ -9,15 +9,17 @@ fn main() -> anyhow::Result<()> {
     let build_result = ink_build::build_contract(contract, Target::RiscV)?;
     let code = std::fs::read(build_result)?;
 
-    let mut drink_api = drink_api::DrinkApi::<ink_env::DefaultEnvironment, MinimalRuntime>::new();
+    let mut drink_api = drink_api::DrinkApi::<ink::env::DefaultEnvironment, MinimalRuntime>::new();
 
     let value = 0;
     let salt = Vec::new();
     let storage_deposit_limit = None;
 
-    let mut constructor = crypto::crypto::CryptoRef::new();
+    use crypto::crypto::{Crypto, CryptoRef};
 
-    drink_api.deploy_contract(
+    let mut constructor = CryptoRef::new();
+
+    let contract = drink_api.ink_instantiate_with_code::<Crypto, _, _>(
         code,
         value,
         &mut constructor,
@@ -25,6 +27,10 @@ fn main() -> anyhow::Result<()> {
         &subxt_signer::sr25519::dev::alice(),
         storage_deposit_limit,
     )?;
+
+    let call = contract.sha3(1000);
+
+    drink_api.ink_call(&subxt_signer::sr25519::dev::alice(), &call, 0, None)?;
 
     Ok(())
 }

@@ -4164,8 +4164,7 @@ dependencies = [
  "contract-build",
  "crypto",
  "drink",
- "ink_env 5.0.0-alpha",
- "ink_primitives 5.0.0-alpha",
+ "ink",
  "parity-scale-codec",
  "subxt-signer",
 ]

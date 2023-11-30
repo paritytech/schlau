@@ -101,25 +101,19 @@ where
             .map_err(|e| anyhow::anyhow!("Failed to instantiate contract: {:?}", e))
     }
 
-    pub fn ink_call<Args: Encode + Clone, RetType: Decode>(
-        &mut self,
-        caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
-        value: ContractsBalanceOf<Runtime>,
-        storage_deposit_limit: Option<ContractsBalanceOf<Runtime>>,
-    ) -> anyhow::Result<()>
-    where
-        CallBuilderFinal<E, Args, RetType>: Clone,
-    {
-        let account_id = message.clone().params().callee().clone();
-        let exec_input = Encode::encode(message.clone().params().exec_input());
-        let account_id = (*account_id.as_ref()).into();
-
+    pub fn call(&mut self, call_args: CallArgs<Runtime>) -> anyhow::Result<()> {
+        let CallArgs {
+            contract_account,
+            caller,
+            exec_input,
+            value,
+            storage_deposit_limit,
+        } = call_args;
         let result = self.sandbox.call_contract(
-            account_id,
+            contract_account,
             value,
             exec_input,
-            keypair_to_account(caller),
+            caller,
             DEFAULT_GAS_LIMIT,
             storage_deposit_limit,
             pallet_contracts::Determinism::Enforced,
@@ -128,6 +122,69 @@ where
             Ok(_) => Ok(()),
             Err(e) => Err(anyhow::anyhow!("Failed to call contract: {:?}", e)),
         }
+    }
+}
+
+#[derive(Clone)]
+pub struct CallArgs<Runtime: RuntimeT + pallet_contracts::Config> {
+    contract_account: AccountIdFor<Runtime>,
+    caller: AccountIdFor<Runtime>,
+    exec_input: Vec<u8>,
+    value: ContractsBalanceOf<Runtime>,
+    storage_deposit_limit: Option<ContractsBalanceOf<Runtime>>,
+}
+
+impl<Runtime: RuntimeT + pallet_contracts::Config> CallArgs<Runtime> {
+    pub fn new(
+        contract_account: AccountIdFor<Runtime>,
+        caller: AccountIdFor<Runtime>,
+        exec_input: Vec<u8>,
+        value: ContractsBalanceOf<Runtime>,
+        storage_deposit_limit: Option<ContractsBalanceOf<Runtime>>,
+    ) -> Self {
+        Self {
+            contract_account,
+            caller,
+            exec_input,
+            value,
+            storage_deposit_limit,
+        }
+    }
+
+    pub fn from_call_builder<E: Environment, Args: Encode + Clone, RetType: Decode>(
+        caller: &Keypair,
+        message: &CallBuilderFinal<E, Args, RetType>,
+    ) -> Self
+    where
+        E::AccountId: AsRef<[u8; 32]>,
+        CallBuilderFinal<E, Args, RetType>: Clone,
+        AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+    {
+        let account_id = message.clone().params().callee().clone();
+        let account_id = (*account_id.as_ref()).into();
+        let exec_input = Encode::encode(message.clone().params().exec_input());
+        let caller = keypair_to_account(caller);
+
+        Self::new(
+            account_id,
+            caller,
+            exec_input,
+            Default::default(),
+            Default::default(),
+        )
+    }
+
+    pub fn with_value(mut self, value: ContractsBalanceOf<Runtime>) -> Self {
+        self.value = value;
+        self
+    }
+
+    pub fn with_storage_deposit_limit(
+        mut self,
+        storage_deposit_limit: ContractsBalanceOf<Runtime>,
+    ) -> Self {
+        self.storage_deposit_limit = Some(storage_deposit_limit);
+        self
     }
 }
 

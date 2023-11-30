@@ -1,6 +1,8 @@
 use drink::{
-    frame_support::traits::fungible::Inspect, BalanceOf,
-    pallet_balances, pallet_contracts, runtime::{AccountIdFor, Runtime as RuntimeT}, Sandbox, DEFAULT_GAS_LIMIT,
+    frame_support::traits::fungible::Inspect,
+    pallet_balances, pallet_contracts,
+    runtime::{AccountIdFor, Runtime as RuntimeT},
+    BalanceOf, Sandbox, DEFAULT_GAS_LIMIT,
 };
 use ink_env::{
     call::{
@@ -11,25 +13,23 @@ use ink_env::{
 };
 use parity_scale_codec::Encode;
 use std::marker::PhantomData;
-use subxt_signer::sr25519::dev;
+use subxt_signer::sr25519::{dev, Keypair};
 
 type ContractsBalanceOf<R> =
-<<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
+    <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
 
-pub struct DrinkApi<E: Environment, Runtime: RuntimeT> {
+pub struct DrinkApi<AccountId, E: Environment, Runtime: RuntimeT> {
     sandbox: Sandbox<Runtime>,
-    _phantom: PhantomData<E>,
+    _phantom: PhantomData<(AccountId, E)>,
 }
 
-impl<E, Runtime> DrinkApi<E, Runtime>
+impl<AccountId, E, Runtime> DrinkApi<AccountId, E, Runtime>
 where
-    E: Environment<
-        AccountId = AccountIdFor<Runtime>,
-        Balance = ContractsBalanceOf<Runtime>,
-    >,
-    E::AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+    E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<Runtime>>,
+    AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
     E::Hash: Copy + From<[u8; 32]>,
     Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
+    AccountIdFor<Runtime>: From<[u8; 32]>,
     BalanceOf<Runtime>: From<u128>,
 {
     pub fn new() -> Self {
@@ -69,10 +69,9 @@ where
         value: ContractsBalanceOf<Runtime>,
         constructor: &mut CreateBuilderPartial<E, Contract, Args, R>,
         salt: Vec<u8>,
-        caller: [u8; 32],
-        gas_limit: u128,
+        caller: &Keypair,
         storage_deposit_limit: Option<ContractsBalanceOf<Runtime>>,
-    ) -> Result<(), String>
+    ) -> anyhow::Result<()>
     where
         Contract: Clone,
         Args: Encode + Clone,
@@ -83,13 +82,13 @@ where
             value,
             data,
             salt,
-            caller.into(),
+            keypair_to_account(caller),
             DEFAULT_GAS_LIMIT,
             storage_deposit_limit,
         );
-        match result {
+        match result.result {
             Ok(_) => Ok(()),
-            Err(e) => Err(e.to_string()),
+            Err(e) => Err(anyhow::anyhow!("Failed to deploy contract: {:?}", e)),
         }
     }
 }
@@ -123,4 +122,8 @@ where
         .params()
         .exec_input()
         .encode()
+}
+
+fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
+    AccountId::from(keypair.public_key().0)
 }

@@ -1,11 +1,11 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
-pub mod bench {
+pub mod crypto {
     #[ink(storage)]
-    pub struct Bench {}
+    pub struct Crypto {}
 
-    impl Bench {
+    impl Crypto {
         #[allow(clippy::new_without_default)]
         #[ink(constructor)]
         pub fn new() -> Self {

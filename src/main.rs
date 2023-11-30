@@ -2,31 +2,29 @@ mod drink_api;
 mod ink_build;
 
 use contract_build::Target;
-use drink::{pallet_contracts, runtime::MinimalRuntime, Sandbox, DEFAULT_GAS_LIMIT};
+use drink::runtime::MinimalRuntime;
+
 fn main() -> anyhow::Result<()> {
     let contract = "contracts/ink/crypto/Cargo.toml";
     let build_result = ink_build::build_contract(contract, Target::RiscV)?;
-
-    let mut sandbox =
-        Sandbox::<MinimalRuntime>::new().expect("Failed to initialize Drink! sandbox");
-
     let code = std::fs::read(build_result)?;
+
+    let mut drink_api = drink_api::DrinkApi::<_, ink_env::DefaultEnvironment, MinimalRuntime>::new();
+
     let value = 0;
-    let data = Vec::new(); // todo: use CreateBuilderPartial
-    let salt = || Vec::new();
-    let caller = [0u8; 32];
-    let gas_limit = DEFAULT_GAS_LIMIT;
+    let salt = Vec::new();
     let storage_deposit_limit = None;
 
-    let result = sandbox.deploy_contract(
+    let mut constructor = crypto::crypto::CryptoRef::new();
+
+    drink_api.deploy_contract(
         code,
         value,
-        data,
-        salt(),
-        caller.into(),
-        gas_limit,
+        &mut constructor,
+        salt,
+        &subxt_signer::sr25519::dev::alice(),
         storage_deposit_limit,
-    );
+    )?;
 
     Ok(())
 }

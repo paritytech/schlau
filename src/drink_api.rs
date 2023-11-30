@@ -18,15 +18,15 @@ use subxt_signer::sr25519::{dev, Keypair};
 type ContractsBalanceOf<R> =
     <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
 
-pub struct DrinkApi<AccountId, E: Environment, Runtime: RuntimeT> {
+pub struct DrinkApi<E: Environment, Runtime: RuntimeT> {
     sandbox: Sandbox<Runtime>,
-    _phantom: PhantomData<(AccountId, E)>,
+    _phantom: PhantomData<E>,
 }
 
-impl<AccountId, E, Runtime> DrinkApi<AccountId, E, Runtime>
+impl<E, Runtime> DrinkApi<E, Runtime>
 where
-    E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<Runtime>>,
-    AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+    E: Environment,
+    E::AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
     E::Hash: Copy + From<[u8; 32]>,
     Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
     AccountIdFor<Runtime>: From<[u8; 32]>,

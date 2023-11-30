@@ -9,7 +9,7 @@ fn main() -> anyhow::Result<()> {
     let build_result = ink_build::build_contract(contract, Target::RiscV)?;
     let code = std::fs::read(build_result)?;
 
-    let mut drink_api = drink_api::DrinkApi::<_, ink_env::DefaultEnvironment, MinimalRuntime>::new();
+    let mut drink_api = drink_api::DrinkApi::<ink_env::DefaultEnvironment, MinimalRuntime>::new();
 
     let value = 0;
     let salt = Vec::new();

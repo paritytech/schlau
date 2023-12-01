@@ -26,7 +26,7 @@ ink = { git = "https://github.com/paritytech/ink", branch = "at/riscv", package 
 crypto = { path = "./contracts/ink/crypto", features = ["ink-as-dependency"] }
 
 [[bench]]
-name = "crypto"
+name = "criterion"
 harness = false
 
 

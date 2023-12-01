@@ -18,7 +18,7 @@ use parity_scale_codec::{Decode, Encode};
 use std::marker::PhantomData;
 use subxt_signer::sr25519::{dev, Keypair};
 
-type ContractsBalanceOf<R> =
+pub type ContractsBalanceOf<R> =
     <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
 
 pub struct DrinkApi<E: Environment, Runtime: RuntimeT> {

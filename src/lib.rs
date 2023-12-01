@@ -1,16 +1,13 @@
 use contract_build::Target;
 use drink::runtime::{AccountIdFor, Runtime as RuntimeT};
+use drink::{pallet_balances, pallet_contracts, BalanceOf};
 use ink::codegen::ContractCallBuilder;
 use ink::env::call::FromAccountId;
 use ink::env::{ContractReference, Environment};
 use parity_scale_codec::Encode;
 use std::path::Path;
-use drink::{BalanceOf, pallet_balances, pallet_contracts};
 
-use self::drink_api::{
-    ContractsBalanceOf,
-    CreateBuilderPartial,
-};
+use self::drink_api::{ContractsBalanceOf, CreateBuilderPartial};
 pub use drink_api::DrinkApi;
 
 pub mod drink_api;

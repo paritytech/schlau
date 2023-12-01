@@ -15,7 +15,7 @@ fn crypto_hash(c: &mut Criterion) {
         "contracts/ink/crypto/Cargo.toml",
         Target::RiscV,
         &mut CryptoRef::new(),
-        &mut drink_api
+        &mut drink_api,
     );
 
     let message = contract.sha3(10);

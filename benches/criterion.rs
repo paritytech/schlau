@@ -18,14 +18,21 @@ fn crypto_hash(c: &mut Criterion) {
         &mut drink_api,
     );
 
-    let message = contract.sha3(10);
+    let message = contract.sha3(1_000_000);
     let call_args = CallArgs::from_call_builder(&subxt_signer::sr25519::dev::alice(), &message);
 
-    let mut group = c.benchmark_group("sample-size-example");
-    group.sample_size(10);
+    let mut group = c.benchmark_group("crypto_hash");
+    group.sample_size(50);
+
+    let instant = std::time::Instant::now();
+    drink_api.call(call_args.clone()).unwrap();
+    println!("Time elapsed: {:?}", instant.elapsed());
 
     group.bench_function("sha3", |b| {
-        b.iter(|| drink_api.call(call_args.clone()).unwrap())
+        b.iter(|| {
+            // std::thread::sleep(std::time::Duration::from_millis(20));
+            drink_api.call(call_args.clone()).unwrap()
+        })
     });
 
     group.finish()

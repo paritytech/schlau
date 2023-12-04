@@ -19,7 +19,7 @@ fn crypto_hash(c: &mut Criterion) {
         &mut drink_api,
     );
 
-    let message = contract.sha3(1_000_000);
+    let message = contract.odd_product(i32::MAX);
     let call_args = CallArgs::from_call_builder(&subxt_signer::sr25519::dev::alice(), &message);
 
     let mut group = c.benchmark_group("crypto_hash");
@@ -30,14 +30,14 @@ fn crypto_hash(c: &mut Criterion) {
     // let hashes_len = u32::decode(&mut &result[..]).unwrap();
     println!("Time elapsed for {result:?}: {:?}", instant.elapsed());
 
-    group.bench_function("sha3", |b| {
-        b.iter(|| {
-            // std::thread::sleep(std::time::Duration::from_millis(20));
-            drink_api.call(call_args.clone()).unwrap()
-        })
-    });
-
-    group.finish()
+    // group.bench_function("sha3", |b| {
+    //     b.iter(|| {
+    //         // std::thread::sleep(std::time::Duration::from_millis(20));
+    //         drink_api.call(call_args.clone()).unwrap()
+    //     })
+    // });
+    //
+    // group.finish()
 }
 
 criterion_group!(benches, crypto_hash);

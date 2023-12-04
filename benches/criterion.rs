@@ -2,6 +2,7 @@ use contract_build::Target;
 use criterion::{criterion_group, criterion_main, Criterion};
 use drink::runtime::MinimalRuntime;
 use ink::env::DefaultEnvironment;
+use parity_scale_codec::Decode;
 use schlau::{
     drink_api::{CallArgs, DrinkApi},
     ink_build_and_instantiate,
@@ -25,8 +26,9 @@ fn crypto_hash(c: &mut Criterion) {
     group.sample_size(50);
 
     let instant = std::time::Instant::now();
-    drink_api.call(call_args.clone()).unwrap();
-    println!("Time elapsed: {:?}", instant.elapsed());
+    let result = drink_api.call(call_args.clone()).unwrap();
+    // let hashes_len = u32::decode(&mut &result[..]).unwrap();
+    println!("Time elapsed for {result:?}: {:?}", instant.elapsed());
 
     group.bench_function("sha3", |b| {
         b.iter(|| {

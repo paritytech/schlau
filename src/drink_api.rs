@@ -101,7 +101,7 @@ where
             .map_err(|e| anyhow::anyhow!("Failed to instantiate contract: {:?}", e))
     }
 
-    pub fn call(&mut self, call_args: CallArgs<Runtime>) -> anyhow::Result<()> {
+    pub fn call(&mut self, call_args: CallArgs<Runtime>) -> anyhow::Result<Vec<u8>> {
         let CallArgs {
             contract_account,
             caller,
@@ -119,7 +119,7 @@ where
             pallet_contracts::Determinism::Enforced,
         );
         match result.result {
-            Ok(_) => Ok(()),
+            Ok(result) => Ok(result.data),
             Err(e) => Err(anyhow::anyhow!("Failed to call contract: {:?}", e)),
         }
     }

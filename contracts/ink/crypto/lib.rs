@@ -13,14 +13,17 @@ pub mod crypto {
         }
 
         #[ink(message)]
-        pub fn sha3(&self, iterations: u32) {
+        pub fn sha3(&self, iterations: u32) -> u32 {
             use sha3::{Digest, Sha3_256};
 
+            let mut hashes = ink::prelude::vec::Vec::new();
             for i in 0..iterations {
                 let mut hasher = Sha3_256::new();
                 hasher.update(i.to_le_bytes());
-                let _result = hasher.finalize();
+                let hash = hasher.finalize();
+                hashes.push(hash);
             }
+            hashes.len() as u32
         }
     }
 }

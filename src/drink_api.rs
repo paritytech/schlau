@@ -92,7 +92,10 @@ where
             storage_deposit_limit,
         );
         if result.debug_message.len() > 0 {
-            println!("debug message {}",  String::from_utf8_lossy(&result.debug_message))
+            println!(
+                "debug message {}",
+                String::from_utf8_lossy(&result.debug_message)
+            )
         }
         result
             .result
@@ -122,7 +125,10 @@ where
             pallet_contracts::Determinism::Enforced,
         );
         if result.debug_message.len() > 0 {
-            println!("debug message: {}",  String::from_utf8_lossy(&result.debug_message))
+            println!(
+                "debug message: {}",
+                String::from_utf8_lossy(&result.debug_message)
+            )
         }
         match result.result {
             Ok(result) => {
@@ -130,7 +136,7 @@ where
                     return Err(anyhow::anyhow!("Contract execution reverted"));
                 }
                 Ok(result.data)
-            },
+            }
             Err(e) => Err(anyhow::anyhow!("Failed to call contract: {:?}", e)),
         }
     }

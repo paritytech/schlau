@@ -1,4 +1,4 @@
-use drink::{
+use drink_wasm::{
     frame_support::traits::fungible::Inspect,
     pallet_balances, pallet_contracts,
     runtime::{AccountIdFor, Runtime as RuntimeT},
@@ -22,7 +22,7 @@ use subxt_signer::sr25519::{dev, Keypair};
 use crate::ink_build;
 
 pub type ContractsBalanceOf<R> =
-    <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
+<<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
 
 pub struct DrinkApi<E: Environment, Runtime: RuntimeT> {
     sandbox: Sandbox<Runtime>,
@@ -30,13 +30,13 @@ pub struct DrinkApi<E: Environment, Runtime: RuntimeT> {
 }
 
 impl<E, Runtime> DrinkApi<E, Runtime>
-where
-    E: Environment,
-    E::AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-    E::Hash: Copy + From<[u8; 32]>,
-    Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
-    AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
-    BalanceOf<Runtime>: From<u128>,
+    where
+        E: Environment,
+        E::AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+        E::Hash: Copy + From<[u8; 32]>,
+        Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
+        AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+        BalanceOf<Runtime>: From<u128>,
 {
     pub fn new() -> Self {
         let mut sandbox = Sandbox::new().expect("Failed to initialize Drink! sandbox");
@@ -60,8 +60,8 @@ where
             dev::one(),
             dev::two(),
         ]
-        .map(|kp| kp.public_key().0)
-        .map(From::from);
+            .map(|kp| kp.public_key().0)
+            .map(From::from);
         for account in accounts.into_iter() {
             sandbox
                 .mint_into(account, TOKENS.into())
@@ -89,7 +89,7 @@ where
             ContractsBalanceOf<Runtime>: From<u128>,
     {
         let build_result =
-            ink_build::build_contract(contract, Target::RiscV).expect("Error building contract");
+            ink_build::build_contract(contract, Target::Wasm).expect("Error building contract");
         let code = std::fs::read(build_result).expect("Error loading contract");
 
         let value = ContractsBalanceOf::<Runtime>::from(0u128);
@@ -117,11 +117,11 @@ where
         caller: &Keypair,
         storage_deposit_limit: Option<ContractsBalanceOf<Runtime>>,
     ) -> anyhow::Result<<Contract as ContractCallBuilder>::Type>
-    where
-        Contract: ContractReference + ContractCallBuilder,
-        <Contract as ContractReference>::Type: Clone,
-        <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
-        Args: Encode + Clone,
+        where
+            Contract: ContractReference + ContractCallBuilder,
+            <Contract as ContractReference>::Type: Clone,
+            <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
+            Args: Encode + Clone,
     {
         let data = constructor_exec_input(constructor.clone());
         let result = self.sandbox.deploy_contract(
@@ -214,10 +214,10 @@ impl<Runtime: RuntimeT + pallet_contracts::Config> CallArgs<Runtime> {
         caller: &Keypair,
         message: &CallBuilderFinal<E, Args, RetType>,
     ) -> Self
-    where
-        E::AccountId: AsRef<[u8; 32]>,
-        CallBuilderFinal<E, Args, RetType>: Clone,
-        AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+        where
+            E::AccountId: AsRef<[u8; 32]>,
+            CallBuilderFinal<E, Args, RetType>: Clone,
+            AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
     {
         let account_id = message.clone().params().callee().clone();
         let account_id = (*account_id.as_ref()).into();
@@ -264,9 +264,9 @@ pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
 pub fn constructor_exec_input<E, ContractRef, Args, R>(
     builder: CreateBuilderPartial<E, ContractRef, Args, R>,
 ) -> Vec<u8>
-where
-    E: Environment,
-    Args: Encode,
+    where
+        E: Environment,
+        Args: Encode,
 {
     // set all the other properties to default values, we only require the `exec_input`.
     builder

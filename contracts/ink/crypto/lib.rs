@@ -28,15 +28,5 @@ pub mod crypto {
             }
             hashes.len() as u32
         }
-
-        #[ink(message)]
-        pub fn triangle_number(&self, n: i64) {
-            let _res: i64 = (1..=n as i64).fold(0, |sum, x| sum.wrapping_add(x));
-        }
-
-        #[ink(message)]
-        pub fn odd_product(&self, n: i32) -> i64 {
-            (1..=n as i64).fold(1, |prod, x| prod.wrapping_mul(2i64.wrapping_mul(x.wrapping_sub(1i64))))
-        }
     }
 }

@@ -8,7 +8,7 @@ use schlau::{
     ink_build_and_instantiate,
 };
 
-fn crypto_hash(c: &mut Criterion) {
+fn crypto(c: &mut Criterion) {
     use crypto::crypto::{Crypto, CryptoRef};
 
     let mut drink_api = DrinkApi::new();
@@ -19,10 +19,10 @@ fn crypto_hash(c: &mut Criterion) {
         &mut drink_api,
     );
 
-    let message = contract.odd_product(i32::MAX);
+    let message = contract.sha3(u32::MAX);
     let call_args = CallArgs::from_call_builder(&subxt_signer::sr25519::dev::alice(), &message);
 
-    let mut group = c.benchmark_group("crypto_hash");
+    let mut group = c.benchmark_group("crypto");
     group.sample_size(50);
 
     let instant = std::time::Instant::now();
@@ -30,15 +30,45 @@ fn crypto_hash(c: &mut Criterion) {
     // let hashes_len = u32::decode(&mut &result[..]).unwrap();
     println!("Time elapsed for {result:?}: {:?}", instant.elapsed());
 
-    // group.bench_function("sha3", |b| {
-    //     b.iter(|| {
-    //         // std::thread::sleep(std::time::Duration::from_millis(20));
-    //         drink_api.call(call_args.clone()).unwrap()
-    //     })
-    // });
-    //
-    // group.finish()
+    group.bench_function("sha3", |b| {
+        b.iter(|| {
+            // std::thread::sleep(std::time::Duration::from_millis(20));
+            drink_api.call(call_args.clone()).unwrap()
+        })
+    });
+    group.finish()
 }
 
-criterion_group!(benches, crypto_hash);
+fn computation(c: &mut Criterion) {
+    use computation::computation::{Computation, ComputationRef};
+
+    let mut drink_api = DrinkApi::new();
+    let contract = ink_build_and_instantiate::<_, MinimalRuntime, DefaultEnvironment, Computation, _, _>(
+        "contracts/ink/computation/Cargo.toml",
+        Target::RiscV,
+        &mut ComputationRef::new(),
+        &mut drink_api,
+    );
+
+    let message = contract.odd_product(i32::MAX);
+    let call_args = CallArgs::from_call_builder(&subxt_signer::sr25519::dev::alice(), &message);
+
+    let mut group = c.benchmark_group("computation");
+    group.sample_size(50);
+
+    let instant = std::time::Instant::now();
+    let result = drink_api.call(call_args.clone()).unwrap();
+    // let hashes_len = u32::decode(&mut &result[..]).unwrap();
+    println!("Time elapsed for {result:?}: {:?}", instant.elapsed());
+
+    group.bench_function("odd_product", |b| {
+        b.iter(|| {
+            // std::thread::sleep(std::time::Duration::from_millis(20));
+            drink_api.call(call_args.clone()).unwrap()
+        })
+    });
+    group.finish()
+}
+
+criterion_group!(benches, crypto, computation);
 criterion_main!(benches);

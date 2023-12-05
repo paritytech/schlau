@@ -24,6 +24,7 @@ ink = { git = "https://github.com/paritytech/ink", branch = "at/riscv", package 
 
 # ink! contracts
 crypto = { path = "./contracts/ink/crypto", features = ["ink-as-dependency"] }
+computation = { path = "./contracts/ink/computation", features = ["ink-as-dependency"] }
 
 [[bench]]
 name = "criterion"

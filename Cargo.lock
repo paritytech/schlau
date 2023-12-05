@@ -121,30 +121,30 @@ checksum = "7079075b41f533b8c61d2a4d073c4676e1f8b249ff94a393b0595db304e0dd87"
 
 [[package]]
 name = "anstyle-parse"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "317b9a89c1868f5ea6ff1d9539a69f45dffc21ce321ac1fd1160dfa48c8e2140"
+checksum = "c75ac65da39e5fe5ab759307499ddad880d724eed2f6ce5b5e8a26f4f387928c"
 dependencies = [
  "utf8parse",
 ]
 
 [[package]]
 name = "anstyle-query"
-version = "1.0.0"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ca11d4be1bab0c8bc8734a9aa7bf4ee8316d462a08c6ac5052f888fef5b494b"
+checksum = "a3a318f1f38d2418400f8209655bfd825785afd25aa30bb7ba6cc792e4596748"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
 name = "anstyle-wincon"
-version = "3.0.1"
+version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0699d10d2f4d628a98ee7b57b289abbc98ff3bad977cb3152709d4bf2330628"
+checksum = "1cd54b81ec8d6180e24654d0b371ad22fc3dd083b6ff8ba325b72e00c87660a7"
 dependencies = [
  "anstyle",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -594,8 +594,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93f2635620bf0b9d4576eb7bb9a38a55df78bd1205d26fa994b25911a69f212f"
 dependencies = [
  "bitcoin_hashes",
- "rand 0.7.3",
- "rand_core 0.5.1",
+ "rand 0.8.5",
+ "rand_core 0.6.4",
  "serde",
  "unicode-normalization",
 ]
@@ -900,9 +900,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.4.10"
+version = "4.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41fffed7514f420abec6d183b1d3acfd9099c79c3a10a06ade4f8203f1411272"
+checksum = "bfaff671f6b22ca62406885ece523383b9b64022e341e53e009a62ebc47a45f2"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -910,9 +910,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.4.9"
+version = "4.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63361bae7eef3771745f02d8d892bec2fee5f6e34af316ba556e7f97a7069ff1"
+checksum = "a216b506622bb1d316cd51328dce24e07bdff4a6128a47c7e7fad11878d5adbb"
 dependencies = [
  "anstream",
  "anstyle",
@@ -1054,8 +1054,8 @@ checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
 
 [[package]]
 name = "contract-build"
-version = "4.0.0-alpha"
-source = "git+https://github.com/paritytech/cargo-contract?branch=at/riscv#dd1572ee1c8b2b69bd449c6275f294c23c50ed6a"
+version = "4.0.0-rc.1"
+source = "git+https://github.com/paritytech/cargo-contract?branch=at/riscv#566f5e33d9b6efe9710ce92b78a8fefe7937fa24"
 dependencies = [
  "anyhow",
  "blake2",
@@ -1063,7 +1063,7 @@ dependencies = [
  "cargo_metadata",
  "clap",
  "colored",
- "contract-metadata 4.0.0-alpha",
+ "contract-metadata 4.0.0-rc.1",
  "crossterm",
  "duct",
  "heck",
@@ -1108,8 +1108,8 @@ dependencies = [
 
 [[package]]
 name = "contract-metadata"
-version = "4.0.0-alpha"
-source = "git+https://github.com/paritytech/cargo-contract?branch=at/riscv#dd1572ee1c8b2b69bd449c6275f294c23c50ed6a"
+version = "4.0.0-rc.1"
+source = "git+https://github.com/paritytech/cargo-contract?branch=at/riscv#566f5e33d9b6efe9710ce92b78a8fefe7937fa24"
 dependencies = [
  "anyhow",
  "impl-serde",
@@ -1637,7 +1637,7 @@ checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 [[package]]
 name = "drink"
 version = "0.8.4"
-source = "git+https://github.com/ascjones/drink?branch=riscv#a197c093cc726a5d0922d625b8e236bbe64479ca"
+source = "git+https://github.com/ascjones/drink?branch=riscv#a5693950ddf644d9226a61cd745ace161f0fb38e"
 dependencies = [
  "contract-metadata 3.2.0",
  "contract-transcode",
@@ -1663,7 +1663,7 @@ dependencies = [
 [[package]]
 name = "drink-test-macro"
 version = "0.8.4"
-source = "git+https://github.com/ascjones/drink?branch=riscv#a197c093cc726a5d0922d625b8e236bbe64479ca"
+source = "git+https://github.com/ascjones/drink?branch=riscv#a5693950ddf644d9226a61cd745ace161f0fb38e"
 dependencies = [
  "cargo_metadata",
  "contract-build",
@@ -2558,7 +2558,7 @@ checksum = "8e04e2fd2b8188ea827b32ef11de88377086d690286ab35747ef7f9bf3ccb590"
 [[package]]
 name = "ink"
 version = "5.0.0-alpha"
-source = "git+https://github.com/paritytech/ink?branch=at/riscv#bf19d8c9440d3577d3d419313d2a3efe918f70f2"
+source = "git+https://github.com/paritytech/ink?branch=at/riscv#2d0bdf14a98633e29b20b04373eaebbd3123a579"
 dependencies = [
  "derive_more",
  "ink_env 5.0.0-alpha",
@@ -2583,7 +2583,7 @@ dependencies = [
 [[package]]
 name = "ink_allocator"
 version = "5.0.0-alpha"
-source = "git+https://github.com/paritytech/ink?branch=at/riscv#bf19d8c9440d3577d3d419313d2a3efe918f70f2"
+source = "git+https://github.com/paritytech/ink?branch=at/riscv#2d0bdf14a98633e29b20b04373eaebbd3123a579"
 dependencies = [
  "cfg-if",
 ]
@@ -2591,7 +2591,7 @@ dependencies = [
 [[package]]
 name = "ink_codegen"
 version = "5.0.0-alpha"
-source = "git+https://github.com/paritytech/ink?branch=at/riscv#bf19d8c9440d3577d3d419313d2a3efe918f70f2"
+source = "git+https://github.com/paritytech/ink?branch=at/riscv#2d0bdf14a98633e29b20b04373eaebbd3123a579"
 dependencies = [
  "blake2",
  "derive_more",
@@ -2628,7 +2628,7 @@ dependencies = [
 [[package]]
 name = "ink_engine"
 version = "5.0.0-alpha"
-source = "git+https://github.com/paritytech/ink?branch=at/riscv#bf19d8c9440d3577d3d419313d2a3efe918f70f2"
+source = "git+https://github.com/paritytech/ink?branch=at/riscv#2d0bdf14a98633e29b20b04373eaebbd3123a579"
 dependencies = [
  "blake2",
  "derive_more",
@@ -2670,7 +2670,7 @@ dependencies = [
 [[package]]
 name = "ink_env"
 version = "5.0.0-alpha"
-source = "git+https://github.com/paritytech/ink?branch=at/riscv#bf19d8c9440d3577d3d419313d2a3efe918f70f2"
+source = "git+https://github.com/paritytech/ink?branch=at/riscv#2d0bdf14a98633e29b20b04373eaebbd3123a579"
 dependencies = [
  "blake2",
  "cfg-if",
@@ -2699,7 +2699,7 @@ dependencies = [
 [[package]]
 name = "ink_ir"
 version = "5.0.0-alpha"
-source = "git+https://github.com/paritytech/ink?branch=at/riscv#bf19d8c9440d3577d3d419313d2a3efe918f70f2"
+source = "git+https://github.com/paritytech/ink?branch=at/riscv#2d0bdf14a98633e29b20b04373eaebbd3123a579"
 dependencies = [
  "blake2",
  "either",
@@ -2713,7 +2713,7 @@ dependencies = [
 [[package]]
 name = "ink_macro"
 version = "5.0.0-alpha"
-source = "git+https://github.com/paritytech/ink?branch=at/riscv#bf19d8c9440d3577d3d419313d2a3efe918f70f2"
+source = "git+https://github.com/paritytech/ink?branch=at/riscv#2d0bdf14a98633e29b20b04373eaebbd3123a579"
 dependencies = [
  "ink_codegen",
  "ink_ir",
@@ -2742,7 +2742,7 @@ dependencies = [
 [[package]]
 name = "ink_metadata"
 version = "5.0.0-alpha"
-source = "git+https://github.com/paritytech/ink?branch=at/riscv#bf19d8c9440d3577d3d419313d2a3efe918f70f2"
+source = "git+https://github.com/paritytech/ink?branch=at/riscv#2d0bdf14a98633e29b20b04373eaebbd3123a579"
 dependencies = [
  "derive_more",
  "impl-serde",
@@ -2766,7 +2766,7 @@ dependencies = [
 [[package]]
 name = "ink_prelude"
 version = "5.0.0-alpha"
-source = "git+https://github.com/paritytech/ink?branch=at/riscv#bf19d8c9440d3577d3d419313d2a3efe918f70f2"
+source = "git+https://github.com/paritytech/ink?branch=at/riscv#2d0bdf14a98633e29b20b04373eaebbd3123a579"
 dependencies = [
  "cfg-if",
 ]
@@ -2789,7 +2789,7 @@ dependencies = [
 [[package]]
 name = "ink_primitives"
 version = "5.0.0-alpha"
-source = "git+https://github.com/paritytech/ink?branch=at/riscv#bf19d8c9440d3577d3d419313d2a3efe918f70f2"
+source = "git+https://github.com/paritytech/ink?branch=at/riscv#2d0bdf14a98633e29b20b04373eaebbd3123a579"
 dependencies = [
  "derive_more",
  "ink_prelude 5.0.0-alpha",
@@ -2803,7 +2803,7 @@ dependencies = [
 [[package]]
 name = "ink_storage"
 version = "5.0.0-alpha"
-source = "git+https://github.com/paritytech/ink?branch=at/riscv#bf19d8c9440d3577d3d419313d2a3efe918f70f2"
+source = "git+https://github.com/paritytech/ink?branch=at/riscv#2d0bdf14a98633e29b20b04373eaebbd3123a579"
 dependencies = [
  "array-init",
  "cfg-if",
@@ -2833,7 +2833,7 @@ dependencies = [
 [[package]]
 name = "ink_storage_traits"
 version = "5.0.0-alpha"
-source = "git+https://github.com/paritytech/ink?branch=at/riscv#bf19d8c9440d3577d3d419313d2a3efe918f70f2"
+source = "git+https://github.com/paritytech/ink?branch=at/riscv#2d0bdf14a98633e29b20b04373eaebbd3123a579"
 dependencies = [
  "ink_metadata 5.0.0-alpha",
  "ink_prelude 5.0.0-alpha",
@@ -4855,7 +4855,7 @@ dependencies = [
 [[package]]
 name = "sp-crypto-ec-utils"
 version = "0.4.1"
-source = "git+https://github.com/paritytech/polkadot-sdk#35c39c960804578396c78532c393d7385ee154b4"
+source = "git+https://github.com/paritytech/polkadot-sdk#f240e02557d47756542b9b8cd876800b4b64c6d5"
 dependencies = [
  "ark-bls12-377",
  "ark-bls12-377-ext",
@@ -4886,7 +4886,7 @@ dependencies = [
 [[package]]
 name = "sp-debug-derive"
 version = "8.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#35c39c960804578396c78532c393d7385ee154b4"
+source = "git+https://github.com/paritytech/polkadot-sdk#f240e02557d47756542b9b8cd876800b4b64c6d5"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4907,7 +4907,7 @@ dependencies = [
 [[package]]
 name = "sp-externalities"
 version = "0.19.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#35c39c960804578396c78532c393d7385ee154b4"
+source = "git+https://github.com/paritytech/polkadot-sdk#f240e02557d47756542b9b8cd876800b4b64c6d5"
 dependencies = [
  "environmental",
  "parity-scale-codec",
@@ -5040,7 +5040,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface"
 version = "17.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#35c39c960804578396c78532c393d7385ee154b4"
+source = "git+https://github.com/paritytech/polkadot-sdk#f240e02557d47756542b9b8cd876800b4b64c6d5"
 dependencies = [
  "bytes",
  "impl-trait-for-tuples",
@@ -5070,7 +5070,7 @@ dependencies = [
 [[package]]
 name = "sp-runtime-interface-proc-macro"
 version = "11.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#35c39c960804578396c78532c393d7385ee154b4"
+source = "git+https://github.com/paritytech/polkadot-sdk#f240e02557d47756542b9b8cd876800b4b64c6d5"
 dependencies = [
  "Inflector",
  "expander",
@@ -5129,7 +5129,7 @@ source = "git+https://github.com/paritytech/polkadot-sdk?branch=at/riscv#30130df
 [[package]]
 name = "sp-std"
 version = "8.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#35c39c960804578396c78532c393d7385ee154b4"
+source = "git+https://github.com/paritytech/polkadot-sdk#f240e02557d47756542b9b8cd876800b4b64c6d5"
 
 [[package]]
 name = "sp-storage"
@@ -5147,7 +5147,7 @@ dependencies = [
 [[package]]
 name = "sp-storage"
 version = "13.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#35c39c960804578396c78532c393d7385ee154b4"
+source = "git+https://github.com/paritytech/polkadot-sdk#f240e02557d47756542b9b8cd876800b4b64c6d5"
 dependencies = [
  "impl-serde",
  "parity-scale-codec",
@@ -5185,7 +5185,7 @@ dependencies = [
 [[package]]
 name = "sp-tracing"
 version = "10.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#35c39c960804578396c78532c393d7385ee154b4"
+source = "git+https://github.com/paritytech/polkadot-sdk#f240e02557d47756542b9b8cd876800b4b64c6d5"
 dependencies = [
  "parity-scale-codec",
  "sp-std 8.0.0 (git+https://github.com/paritytech/polkadot-sdk)",
@@ -5262,7 +5262,7 @@ dependencies = [
 [[package]]
 name = "sp-wasm-interface"
 version = "14.0.0"
-source = "git+https://github.com/paritytech/polkadot-sdk#35c39c960804578396c78532c393d7385ee154b4"
+source = "git+https://github.com/paritytech/polkadot-sdk#f240e02557d47756542b9b8cd876800b4b64c6d5"
 dependencies = [
  "anyhow",
  "impl-trait-for-tuples",
@@ -6116,9 +6116,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-opt"
-version = "0.112.0"
+version = "0.116.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87fef6d0d508f08334e0ab0e6877feb4c0ecb3956bcf2cb950699b22fedf3e9c"
+checksum = "fc942673e7684671f0c5708fc18993569d184265fd5223bb51fc8e5b9b6cfd52"
 dependencies = [
  "anyhow",
  "libc",
@@ -6132,9 +6132,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-opt-cxx-sys"
-version = "0.112.0"
+version = "0.116.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc816bbc1596c8f2e8127e137a760c798023ef3d378f2ae51f0f1840e2dfa445"
+checksum = "8c57b28207aa724318fcec6575fe74803c23f6f266fce10cbc9f3f116762f12e"
 dependencies = [
  "anyhow",
  "cxx",
@@ -6144,9 +6144,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-opt-sys"
-version = "0.112.0"
+version = "0.116.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "40199e4f68ef1071b3c6d0bd8026a12b481865d4b9e49c156932ea9a6234dd14"
+checksum = "8a1cce564dc768dacbdb718fc29df2dba80bd21cb47d8f77ae7e3d95ceb98cbe"
 dependencies = [
  "anyhow",
  "cc",
@@ -6369,14 +6369,15 @@ dependencies = [
 
 [[package]]
 name = "which"
-version = "4.4.2"
+version = "5.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87ba24419a2078cd2b0f2ede2691b6c66d8e47836da3b6db8265ebad47afbfc7"
+checksum = "9bf3ea8596f3a0dd5980b46430f2058dfe2c36a27ccfbb1845d6fbfcd9ba6e14"
 dependencies = [
  "either",
  "home",
  "once_cell",
  "rustix 0.38.26",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -6629,9 +6630,9 @@ checksum = "dff9641d1cd4be8d1a070daf9e3773c5f67e78b4d9d42263020c057706765c04"
 
 [[package]]
 name = "winnow"
-version = "0.5.19"
+version = "0.5.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "829846f3e3db426d4cee4510841b71a8e58aa2a76b1132579487ae430ccd9c7b"
+checksum = "0383266b19108dfc6314a56047aa545a1b4d1be60e799b4dbdd407b56402704b"
 dependencies = [
  "memchr",
 ]

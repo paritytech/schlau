@@ -1,0 +1,21 @@
+[package]
+name = "crypto"
+version = "0.1.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { git = "https://github.com/paritytech/ink", branch = "at/riscv", package = "ink", default-features = false }
+sha3 = { version = "0.10.8", default-features = false }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+]
+ink-as-dependency = []
+e2e-tests = []

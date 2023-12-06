@@ -1,0 +1,46 @@
+[workspace]
+exclude = [
+    "contracts",
+]
+
+[package]
+name = "schlau"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "schlau"
+
+[dependencies]
+anyhow = "1.0.44"
+clap = { version = "4.4.8", features = ["derive"] }
+criterion = "0.5.1"
+parity-scale-codec = { version = "3.6.9" }
+subxt-signer = "0.32.1"
+tracing = "0.1.40"
+tracing-subscriber = "0.3.18"
+
+contract-build = { package = "contract-build", git = "https://github.com/paritytech/cargo-contract", branch = "at/riscv" }
+drink-riscv = { git = "https://github.com/ascjones/drink", branch = "riscv", package = "drink", optional = true }
+drink-wasm = { git = "https://github.com/ascjones/drink", branch = "wasm", package = "drink", optional = true }
+ink = { git = "https://github.com/paritytech/ink", branch = "at/riscv", package = "ink", default-features = false }
+
+# ink! contracts
+crypto = { path = "./contracts/ink/crypto", features = ["ink-as-dependency"] }
+computation = { path = "./contracts/ink/computation", features = ["ink-as-dependency"] }
+
+[[bench]]
+name = "ink"
+harness = false
+
+[features]
+default = []
+wasm = [
+    "drink-wasm",
+]
+riscv = [
+    "drink-riscv",
+]
+
+
+

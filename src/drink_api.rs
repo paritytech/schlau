@@ -4,36 +4,17 @@ use super::drink::{
     runtime::{AccountIdFor, Runtime as RuntimeT},
     BalanceOf, Sandbox, DEFAULT_GAS_LIMIT,
 };
-use crate::ink_build;
-use contract_build::Target;
-use ink::{
-    codegen::ContractCallBuilder,
-    env::{
-        call::{
-            utils::{ReturnType, Set, Unset},
-            Call, CreateBuilder, ExecutionInput, FromAccountId,
-        },
-        ContractReference, Environment,
-    },
-};
-use parity_scale_codec::{Decode, Encode};
-use std::marker::PhantomData;
-use std::path::Path;
 use subxt_signer::sr25519::{dev, Keypair};
 
 pub type ContractsBalanceOf<R> =
     <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
 
-pub struct DrinkApi<E: Environment, Runtime: RuntimeT> {
+pub struct DrinkApi<Runtime: RuntimeT> {
     sandbox: Sandbox<Runtime>,
-    _phantom: PhantomData<E>,
 }
 
-impl<E, Runtime> DrinkApi<E, Runtime>
+impl<Runtime> DrinkApi<Runtime>
 where
-    E: Environment,
-    E::AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-    E::Hash: Copy + From<[u8; 32]>,
     Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
     AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
     BalanceOf<Runtime>: From<u128>,
@@ -47,13 +28,10 @@ where
 
         let mut sandbox = Sandbox::new().expect("Failed to initialize Drink! sandbox");
         Self::fund_accounts(&mut sandbox);
-        DrinkApi {
-            sandbox,
-            _phantom: PhantomData,
-        }
+        DrinkApi { sandbox }
     }
 
-    fn fund_accounts(sandbox: &mut Sandbox<Runtime>) {
+    pub fn fund_accounts(sandbox: &mut Sandbox<Runtime>) {
         const TOKENS: u128 = 1_000_000_000_000_000;
 
         let accounts = [
@@ -75,73 +53,25 @@ where
         }
     }
 
-    pub fn build_and_instantiate<P, Contract, Args, R>(
+    pub fn instantiate_with_code(
         &mut self,
-        contract: P,
-        constructor: &mut CreateBuilderPartial<E, <Contract as ContractReference>::Type, Args, R>,
-    ) -> <Contract as ContractCallBuilder>::Type
-    where
-        E: Environment,
-        E::AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        E::Hash: Copy + From<[u8; 32]>,
-        Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
-        P: AsRef<Path> + Copy,
-        Contract: ContractReference + ContractCallBuilder,
-        <Contract as ContractReference>::Type: Clone,
-        <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
-        Args: Encode + Clone,
-        AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
-        BalanceOf<Runtime>: From<u128>,
-        ContractsBalanceOf<Runtime>: From<u128>,
-    {
-        let target = if cfg!(feature = "wasm") {
-            Target::Wasm
-        } else if cfg!(feature = "riscv") {
-            Target::RiscV
-        } else {
-            panic!("No VM target feature enabled")
-        };
-        let build_result =
-            ink_build::build_contract(contract, target).expect("Error building contract");
-        let code = std::fs::read(build_result).expect("Error loading contract");
-
-        let value = ContractsBalanceOf::<Runtime>::from(0u128);
-        let salt = Vec::new();
-        let storage_deposit_limit = None;
-
-        self.ink_instantiate_with_code::<Contract, Args, R>(
+        create_args: CreateArgs<Runtime>,
+    ) -> anyhow::Result<AccountIdFor<Runtime>>
+where {
+        let CreateArgs {
             code,
-            value.into(),
-            constructor,
+            value,
+            data,
             salt,
-            &dev::alice(),
+            caller,
             storage_deposit_limit,
-        )
-        .expect("Error instantiating contract")
-    }
-
-    pub fn ink_instantiate_with_code<Contract, Args, R>(
-        &mut self,
-        code: Vec<u8>,
-        value: ContractsBalanceOf<Runtime>,
-        constructor: &mut CreateBuilderPartial<E, <Contract as ContractReference>::Type, Args, R>,
-        salt: Vec<u8>,
-        caller: &Keypair,
-        storage_deposit_limit: Option<ContractsBalanceOf<Runtime>>,
-    ) -> anyhow::Result<<Contract as ContractCallBuilder>::Type>
-    where
-        Contract: ContractReference + ContractCallBuilder,
-        <Contract as ContractReference>::Type: Clone,
-        <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
-        Args: Encode + Clone,
-    {
-        let data = constructor_exec_input(constructor.clone());
+        } = create_args;
         let result = self.sandbox.deploy_contract(
             code,
             value,
             data,
             salt,
-            keypair_to_account(caller),
+            caller,
             DEFAULT_GAS_LIMIT,
             storage_deposit_limit,
         );
@@ -153,11 +83,7 @@ where
         }
         result
             .result
-            .map(|r| {
-                <<Contract as ContractCallBuilder>::Type as FromAccountId<E>>::from_account_id(
-                    E::AccountId::from(*r.account_id.as_ref()),
-                )
-            })
+            .map(|r| r.account_id)
             .map_err(|e| anyhow::anyhow!("Failed to instantiate contract: {:?}", e))
     }
 
@@ -197,52 +123,66 @@ where
 }
 
 #[derive(Clone)]
-pub struct CallArgs<Runtime: RuntimeT + pallet_contracts::Config> {
-    contract_account: AccountIdFor<Runtime>,
-    caller: AccountIdFor<Runtime>,
-    exec_input: Vec<u8>,
-    value: ContractsBalanceOf<Runtime>,
-    storage_deposit_limit: Option<ContractsBalanceOf<Runtime>>,
+pub struct CreateArgs<Runtime: RuntimeT + pallet_contracts::Config> {
+    pub code: Vec<u8>,
+    pub value: ContractsBalanceOf<Runtime>,
+    pub data: Vec<u8>,
+    pub salt: Vec<u8>,
+    pub caller: AccountIdFor<Runtime>,
+    pub storage_deposit_limit: Option<ContractsBalanceOf<Runtime>>,
 }
 
-impl<Runtime: RuntimeT + pallet_contracts::Config> CallArgs<Runtime> {
+impl<Runtime: RuntimeT + pallet_contracts::Config> CreateArgs<Runtime>
+where
+    AccountIdFor<Runtime>: From<[u8; 32]>,
+    ContractsBalanceOf<Runtime>: From<u128>,
+{
+    pub fn new(code: Vec<u8>, caller: Keypair) -> Self {
+        Self {
+            code,
+            value: ContractsBalanceOf::<Runtime>::from(0u128),
+            data: Vec::new(),
+            salt: Vec::new(),
+            caller: keypair_to_account(&caller),
+            storage_deposit_limit: None,
+        }
+    }
+}
+
+impl<Runtime: RuntimeT + pallet_contracts::Config> CreateArgs<Runtime> {
+    pub fn with_data(mut self, data: Vec<u8>) -> Self {
+        self.data = data;
+        self
+    }
+}
+
+#[derive(Clone)]
+pub struct CallArgs<Runtime: RuntimeT + pallet_contracts::Config> {
+    pub contract_account: AccountIdFor<Runtime>,
+    pub caller: AccountIdFor<Runtime>,
+    pub exec_input: Vec<u8>,
+    pub value: ContractsBalanceOf<Runtime>,
+    pub storage_deposit_limit: Option<ContractsBalanceOf<Runtime>>,
+}
+
+impl<Runtime: RuntimeT + pallet_contracts::Config> CallArgs<Runtime>
+where
+    AccountIdFor<Runtime>: From<[u8; 32]>,
+{
     pub fn new(
         contract_account: AccountIdFor<Runtime>,
-        caller: AccountIdFor<Runtime>,
+        caller: Keypair,
         exec_input: Vec<u8>,
         value: ContractsBalanceOf<Runtime>,
         storage_deposit_limit: Option<ContractsBalanceOf<Runtime>>,
     ) -> Self {
         Self {
             contract_account,
-            caller,
+            caller: keypair_to_account(&caller),
             exec_input,
             value,
             storage_deposit_limit,
         }
-    }
-
-    pub fn from_call_builder<E: Environment, Args: Encode + Clone, RetType: Decode>(
-        caller: &Keypair,
-        message: &CallBuilderFinal<E, Args, RetType>,
-    ) -> Self
-    where
-        E::AccountId: AsRef<[u8; 32]>,
-        CallBuilderFinal<E, Args, RetType>: Clone,
-        AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
-    {
-        let account_id = message.clone().params().callee().clone();
-        let account_id = (*account_id.as_ref()).into();
-        let exec_input = Encode::encode(message.clone().params().exec_input());
-        let caller = keypair_to_account(caller);
-
-        Self::new(
-            account_id,
-            caller,
-            exec_input,
-            Default::default(),
-            Default::default(),
-        )
     }
 
     pub fn with_value(mut self, value: ContractsBalanceOf<Runtime>) -> Self {
@@ -258,45 +198,6 @@ impl<Runtime: RuntimeT + pallet_contracts::Config> CallArgs<Runtime> {
         self
     }
 }
-
-/// The type returned from `ContractRef` constructors, partially initialized with the
-/// execution input arguments.
-pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
-    E,
-    ContractRef,
-    Unset<<E as Environment>::Hash>,
-    Unset<u64>,
-    Unset<<E as Environment>::Balance>,
-    Set<ExecutionInput<Args>>,
-    Unset<ink::env::call::state::Salt>,
-    Set<ReturnType<R>>,
->;
-
-/// Get the encoded constructor arguments from the partially initialized `CreateBuilder`
-pub fn constructor_exec_input<E, ContractRef, Args, R>(
-    builder: CreateBuilderPartial<E, ContractRef, Args, R>,
-) -> Vec<u8>
-where
-    E: Environment,
-    Args: Encode,
-{
-    // set all the other properties to default values, we only require the `exec_input`.
-    builder
-        .endowment(0u32.into())
-        .code_hash(ink::primitives::Clear::CLEAR_HASH)
-        .salt_bytes(Vec::new())
-        .params()
-        .exec_input()
-        .encode()
-}
-
-/// Represents an initialized contract message builder.
-pub type CallBuilderFinal<E, Args, RetType> = ink::env::call::CallBuilder<
-    E,
-    Set<Call<E>>,
-    Set<ExecutionInput<Args>>,
-    Set<ReturnType<RetType>>,
->;
 
 fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {
     AccountId::from(keypair.public_key().0)

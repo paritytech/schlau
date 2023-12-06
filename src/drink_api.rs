@@ -44,6 +44,12 @@ where
     BalanceOf<Runtime>: From<u128>,
 {
     pub fn new() -> Self {
+        tracing_subscriber::fmt()
+            .with_max_level(tracing::Level::WARN)
+            .with_test_writer()
+            .try_init()
+            .ok();
+
         let mut sandbox = Sandbox::new().expect("Failed to initialize Drink! sandbox");
         Self::fund_accounts(&mut sandbox);
         DrinkApi {
@@ -113,7 +119,7 @@ where
             value.into(),
             constructor,
             salt,
-            &subxt_signer::sr25519::dev::alice(),
+            &dev::alice(),
             storage_deposit_limit,
         )
         .expect("Error instantiating contract")
@@ -145,7 +151,7 @@ where
             storage_deposit_limit,
         );
         if result.debug_message.len() > 0 {
-            println!(
+            tracing::debug!(
                 "debug message {}",
                 String::from_utf8_lossy(&result.debug_message)
             )
@@ -178,7 +184,7 @@ where
             pallet_contracts::Determinism::Enforced,
         );
         if result.debug_message.len() > 0 {
-            println!(
+            tracing::debug!(
                 "debug message: {}",
                 String::from_utf8_lossy(&result.debug_message)
             )

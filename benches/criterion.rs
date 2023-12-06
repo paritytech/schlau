@@ -1,12 +1,13 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use ink::env::DefaultEnvironment;
 
+use schlau::drink::runtime::MinimalRuntime;
 use schlau::drink_api::{CallArgs, DrinkApi};
 
 fn crypto(c: &mut Criterion) {
     use crypto::crypto::{Crypto, CryptoRef};
 
-    let mut drink_api = DrinkApi::<DefaultEnvironment, drink_wasm::runtime::MinimalRuntime>::new();
+    let mut drink_api = DrinkApi::<DefaultEnvironment, MinimalRuntime>::new();
     let contract = drink_api.build_and_instantiate::<_, Crypto, _, _>(
         "contracts/ink/crypto/Cargo.toml",
         &mut CryptoRef::new(),
@@ -27,7 +28,7 @@ fn crypto(c: &mut Criterion) {
 fn computation(c: &mut Criterion) {
     use computation::computation::{Computation, ComputationRef};
 
-    let mut drink_api = DrinkApi::<DefaultEnvironment, drink_wasm::runtime::MinimalRuntime>::new();
+    let mut drink_api = DrinkApi::<DefaultEnvironment, MinimalRuntime>::new();
     let contract = drink_api.build_and_instantiate::<_, Computation, _, _>(
         "contracts/ink/computation/Cargo.toml",
         &mut ComputationRef::new(),

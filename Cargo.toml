@@ -34,7 +34,7 @@ name = "criterion"
 harness = false
 
 [features]
-default = ["wasm"]
+default = []
 wasm = [
     "drink-wasm",
 ]

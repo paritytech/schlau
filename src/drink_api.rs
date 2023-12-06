@@ -1,16 +1,11 @@
-#[cfg(feature = "riscv")]
-use drink_riscv as drink;
-#[cfg(feature = "wasm")]
-use drink_wasm as drink;
-
-use crate::ink_build;
-use contract_build::Target;
-use drink::{
+use super::drink::{
     frame_support::traits::fungible::Inspect,
     pallet_balances, pallet_contracts,
     runtime::{AccountIdFor, Runtime as RuntimeT},
     BalanceOf, Sandbox, DEFAULT_GAS_LIMIT,
 };
+use crate::ink_build;
+use contract_build::Target;
 use ink::{
     codegen::ContractCallBuilder,
     env::{

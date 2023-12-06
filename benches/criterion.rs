@@ -32,11 +32,17 @@ macro_rules! ink_contract_bench {
 
             group.finish()
         }
-    }
+    };
 }
 
 ink_contract_bench!(crypto, Crypto, CryptoRef, sha3, 100);
-ink_contract_bench!(computation, Computation, ComputationRef, odd_product, 100_000);
+ink_contract_bench!(
+    computation,
+    Computation,
+    ComputationRef,
+    odd_product,
+    100_000
+);
 
 criterion_group!(benches, crypto, computation);
 criterion_main!(benches);

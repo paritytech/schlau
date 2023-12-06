@@ -30,7 +30,7 @@ crypto = { path = "./contracts/ink/crypto", features = ["ink-as-dependency"] }
 computation = { path = "./contracts/ink/computation", features = ["ink-as-dependency"] }
 
 [[bench]]
-name = "criterion"
+name = "ink"
 harness = false
 
 [features]

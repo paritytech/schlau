@@ -2,8 +2,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 use ink::env::DefaultEnvironment;
 use subxt_signer::sr25519::dev;
 
-use schlau::drink::runtime::MinimalRuntime;
-use schlau::drink_api::{CallArgs, DrinkApi};
+use schlau::{drink::runtime::MinimalRuntime, drink_api::CallArgs, ink::InkDrink};
 
 macro_rules! ink_contract_bench {
     ( $name:ident, $contract:ident, $contract_ref:ident, $message:ident, $args:tt) => {
@@ -12,14 +11,14 @@ macro_rules! ink_contract_bench {
 
             let contract_name = stringify!($name);
 
-            let mut drink_api = DrinkApi::<DefaultEnvironment, MinimalRuntime>::new();
-            let contract = drink_api.build_and_instantiate::<_, $contract, _, _>(
+            let mut ink_drink = InkDrink::<DefaultEnvironment, MinimalRuntime>::new();
+            let contract = ink_drink.build_and_instantiate::<_, $contract, _, _>(
                 &format!("contracts/ink/{}/Cargo.toml", contract_name),
                 &mut $contract_ref::new(),
             );
 
             let message = contract.$message($args);
-            let call_args = CallArgs::from_call_builder(&dev::alice(), &message);
+            let call_args = CallArgs::from_call_builder(dev::alice(), &message);
 
             let mut group = c.benchmark_group(contract_name);
             group.sample_size(30);
@@ -27,7 +26,7 @@ macro_rules! ink_contract_bench {
             let bench_name = format!("{}_{}", stringify!($message), stringify!($args));
 
             group.bench_function(bench_name, |b| {
-                b.iter(|| drink_api.call(call_args.clone()).unwrap())
+                b.iter(|| ink_drink.drink.call(call_args.clone()).unwrap())
             });
 
             group.finish()

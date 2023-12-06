@@ -1,3 +1,10 @@
+#[cfg(feature = "riscv")]
+use drink_riscv as drink;
+#[cfg(feature = "wasm")]
+use drink_wasm as drink;
+
+use crate::ink_build;
+use contract_build::Target;
 use drink::{
     frame_support::traits::fungible::Inspect,
     pallet_balances, pallet_contracts,
@@ -17,9 +24,7 @@ use ink::{
 use parity_scale_codec::{Decode, Encode};
 use std::marker::PhantomData;
 use std::path::Path;
-use contract_build::Target;
 use subxt_signer::sr25519::{dev, Keypair};
-use crate::ink_build;
 
 pub type ContractsBalanceOf<R> =
     <<R as pallet_contracts::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;
@@ -74,38 +79,44 @@ where
         contract: P,
         constructor: &mut CreateBuilderPartial<E, <Contract as ContractReference>::Type, Args, R>,
     ) -> <Contract as ContractCallBuilder>::Type
-        where
-            E: Environment,
-            E::AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-            E::Hash: Copy + From<[u8; 32]>,
-            Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
-            P: AsRef<Path> + Copy,
-            Contract: ContractReference + ContractCallBuilder,
-            <Contract as ContractReference>::Type: Clone,
-            <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
-            Args: Encode + Clone,
-            AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
-            BalanceOf<Runtime>: From<u128>,
-            ContractsBalanceOf<Runtime>: From<u128>,
+    where
+        E: Environment,
+        E::AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+        E::Hash: Copy + From<[u8; 32]>,
+        Runtime: RuntimeT + pallet_balances::Config + pallet_contracts::Config,
+        P: AsRef<Path> + Copy,
+        Contract: ContractReference + ContractCallBuilder,
+        <Contract as ContractReference>::Type: Clone,
+        <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
+        Args: Encode + Clone,
+        AccountIdFor<Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,
+        BalanceOf<Runtime>: From<u128>,
+        ContractsBalanceOf<Runtime>: From<u128>,
     {
+        let target = if cfg!(feature = "wasm") {
+            Target::Wasm
+        } else if cfg!(feature = "riscv") {
+            Target::RiscV
+        } else {
+            panic!("No VM target feature enabled")
+        };
         let build_result =
-            ink_build::build_contract(contract, Target::RiscV).expect("Error building contract");
+            ink_build::build_contract(contract, target).expect("Error building contract");
         let code = std::fs::read(build_result).expect("Error loading contract");
 
         let value = ContractsBalanceOf::<Runtime>::from(0u128);
         let salt = Vec::new();
         let storage_deposit_limit = None;
 
-        self
-            .ink_instantiate_with_code::<Contract, Args, R>(
-                code,
-                value.into(),
-                constructor,
-                salt,
-                &subxt_signer::sr25519::dev::alice(),
-                storage_deposit_limit,
-            )
-            .expect("Error instantiating contract")
+        self.ink_instantiate_with_code::<Contract, Args, R>(
+            code,
+            value.into(),
+            constructor,
+            salt,
+            &subxt_signer::sr25519::dev::alice(),
+            storage_deposit_limit,
+        )
+        .expect("Error instantiating contract")
     }
 
     pub fn ink_instantiate_with_code<Contract, Args, R>(

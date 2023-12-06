@@ -19,7 +19,7 @@ where
     let args = ExecuteArgs {
         manifest_path,
         verbosity: Verbosity::Default,
-        build_mode: BuildMode::Debug,
+        build_mode: BuildMode::Release,
         features: Features::default(),
         network: Network::Online,
         build_artifact: BuildArtifacts::CodeOnly,

@@ -9,7 +9,12 @@ use contract_build::Target;
 /// Builds the Solidity source in `path_to_source_sol`.
 /// Returns the path to the build output directory.
 ///
-/// Note: For RiscV the produced contract blob will still have the `.wasm` file extension.
+/// For each each contract found in the source code, solang creates two files:
+/// - `contract_name.wasm`: The code blob.
+/// - `contract_name.contract`: The full contract artifact including metadata.
+/// Where `contract_name` is equal to the name of that contract
+///
+/// Note: For RiscV the produced contract blob does still have the `.wasm` file extension.
 pub fn build_contract<P>(path_to_source_sol: P, target: Target) -> anyhow::Result<PathBuf>
 where
     P: AsRef<Path> + Copy,

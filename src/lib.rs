@@ -5,3 +5,5 @@ pub use drink_wasm as drink;
 pub mod drink_api;
 pub mod ink;
 pub mod solang;
+#[cfg(feature = "evm")]
+pub mod evm;

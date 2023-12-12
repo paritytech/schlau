@@ -25,6 +25,13 @@ drink-riscv = { git = "https://github.com/ascjones/drink", branch = "riscv", pac
 drink-wasm = { git = "https://github.com/ascjones/drink", branch = "wasm", package = "drink", optional = true }
 ink = { git = "https://github.com/paritytech/ink", branch = "at/riscv", package = "ink", default-features = false }
 
+# pallet-evm API
+sp-externalities = { version = "0.19.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-externalities", optional = true }
+sp-io = { version = "23.0.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-io", optional = true  }
+sp-core = { version = "21.0.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-core", optional = true  }
+fp-evm = { version = "3.0.0-dev", git = "https://github.com/paritytech/frontier", branch = "master", package = "fp-evm", default-features = false, optional = true }
+pallet-evm = { version = "6.0.0-dev", git = "https://github.com/paritytech/frontier", branch = "master", package = "pallet-evm", optional = true  }
+
 # ink! contracts
 crypto = { path = "./contracts/ink/crypto", features = ["ink-as-dependency"] }
 computation = { path = "./contracts/ink/computation", features = ["ink-as-dependency"] }
@@ -35,6 +42,14 @@ harness = false
 
 [features]
 default = []
+evm = [
+    "wasm", # enable the `wasm` feature so the `ink` benches still run.
+    "sp-core",
+    "sp-externalities",
+    "sp-io",
+    "pallet-evm",
+    "fp-evm",
+]
 wasm = [
     "drink-wasm",
 ]

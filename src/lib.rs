@@ -7,3 +7,4 @@ pub mod drink_api;
 pub mod evm;
 pub mod ink;
 pub mod solang;
+mod solc;

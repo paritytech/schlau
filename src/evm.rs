@@ -1,4 +1,6 @@
+use super::drink::{runtime::AccountIdFor, BalanceOf};
 use fp_evm::{CreateInfo, ExitReason};
+use frame_support::traits::fungible::Mutate;
 use pallet_evm::Runner;
 use sp_core::{H160, H256, U256};
 use sp_io::TestExternalities;
@@ -8,7 +10,11 @@ pub struct EvmSandbox<R> {
     phantom: std::marker::PhantomData<R>,
 }
 
-impl<R: pallet_evm::Config> EvmSandbox<R> {
+impl<R> EvmSandbox<R>
+where
+    R: pallet_evm::Config + pallet_balances::Config,
+    AccountIdFor<R>: From<H160> + Into<H160>,
+{
     pub fn execute_with<T>(&mut self, execute: impl FnOnce() -> T) -> T {
         self.externalities.execute_with(execute)
     }
@@ -94,6 +100,16 @@ impl<R: pallet_evm::Config> EvmSandbox<R> {
                 Err(anyhow::anyhow!("call failed: {:?}", info.exit_reason))
             }
         })
+    }
+
+    pub fn mint_into(
+        &mut self,
+        address: H160,
+        amount: BalanceOf<R>,
+    ) -> anyhow::Result<BalanceOf<R>> {
+        let address = AccountIdFor::<R>::from(address);
+        self.execute_with(|| pallet_balances::Pallet::<R>::mint_into(&address, amount))
+            .map_err(|_err| anyhow::anyhow!("error minting into account"))
     }
 }
 

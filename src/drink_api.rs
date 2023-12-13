@@ -56,8 +56,7 @@ where
     pub fn instantiate_with_code(
         &mut self,
         create_args: CreateArgs<Runtime>,
-    ) -> anyhow::Result<AccountIdFor<Runtime>>
-where {
+    ) -> anyhow::Result<AccountIdFor<Runtime>> {
         let CreateArgs {
             code,
             value,

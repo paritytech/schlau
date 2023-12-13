@@ -13,17 +13,17 @@ impl<R: pallet_evm::Config> EvmSandbox<R> {
         self.externalities.execute_with(execute)
     }
 
-    pub fn create(
-        &mut self,
-        source: H160,
-        init: Vec<u8>,
-        value: U256,
-        gas_limit: u64,
-        max_fee_per_gas: U256,
-        max_priority_fee_per_gas: Option<U256>,
-        nonce: Option<U256>,
-        access_list: Vec<(H160, Vec<H256>)>
-    ) -> anyhow::Result<H160> {
+    pub fn create(&mut self, create_args: CreateArgs) -> anyhow::Result<H160> {
+        let CreateArgs {
+            source,
+            init,
+            value,
+            gas_limit,
+            max_fee_per_gas,
+            max_priority_fee_per_gas,
+            nonce,
+            access_list,
+        } = create_args;
         self.execute_with(|| {
             let is_transactional = true;
             let validate = true;
@@ -45,13 +45,77 @@ impl<R: pallet_evm::Config> EvmSandbox<R> {
                 None,
                 None,
                 R::config(),
-            ).map_err(|err| anyhow::anyhow!("error invoking create"))?;
+            )
+            .map_err(|_err| anyhow::anyhow!("error invoking create"))?;
 
             if let ExitReason::Succeed(_) = exit_reason {
                 Ok(create_address)
             } else {
                 Err(anyhow::anyhow!("create failed: {:?}", exit_reason))
             }
-        });
+        })
     }
+
+    pub fn call(&mut self, call_args: CallArgs) -> anyhow::Result<()> {
+        let CallArgs {
+            source,
+            target,
+            input,
+            value,
+            gas_limit,
+            max_fee_per_gas,
+            max_priority_fee_per_gas,
+            nonce,
+            access_list,
+        } = call_args;
+        self.execute_with(|| {
+            let is_transactional = true;
+            let validate = true;
+            let info = R::Runner::call(
+                source,
+                target,
+                input,
+                value,
+                gas_limit,
+                Some(max_fee_per_gas),
+                max_priority_fee_per_gas,
+                nonce,
+                access_list,
+                is_transactional,
+                validate,
+                None,
+                None,
+                R::config(),
+            )
+            .map_err(|_err| anyhow::anyhow!("error invoking call"))?;
+            if let ExitReason::Succeed(_) = info.exit_reason {
+                Ok(())
+            } else {
+                Err(anyhow::anyhow!("call failed: {:?}", info.exit_reason))
+            }
+        })
+    }
+}
+
+pub struct CreateArgs {
+    source: H160,
+    init: Vec<u8>,
+    value: U256,
+    gas_limit: u64,
+    max_fee_per_gas: U256,
+    max_priority_fee_per_gas: Option<U256>,
+    nonce: Option<U256>,
+    access_list: Vec<(H160, Vec<H256>)>,
+}
+
+pub struct CallArgs {
+    source: H160,
+    target: H160,
+    input: Vec<u8>,
+    value: U256,
+    gas_limit: u64,
+    max_fee_per_gas: U256,
+    max_priority_fee_per_gas: Option<U256>,
+    nonce: Option<U256>,
+    access_list: Vec<(H160, Vec<H256>)>,
 }

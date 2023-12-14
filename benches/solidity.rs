@@ -1,4 +1,5 @@
 use criterion::{criterion_group, criterion_main, Criterion};
+use schlau::evm::EvmSandbox;
 
 fn computation(c: &mut Criterion) {
     let contract = schlau::solc::build_contract("contracts/solidity/computation.sol").unwrap();

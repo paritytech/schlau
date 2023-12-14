@@ -7,8 +7,8 @@ use std::{
 /// Builds the Solidity source in `path_to_source_sol`.
 /// Returns the bytes of the compiled contract.
 pub fn build_contract<P>(path_to_source_sol: P) -> anyhow::Result<Vec<u8>>
-    where
-        P: AsRef<Path> + Copy,
+where
+    P: AsRef<Path> + Copy,
 {
     let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
 

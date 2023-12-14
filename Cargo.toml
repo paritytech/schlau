@@ -30,11 +30,15 @@ hex = "0.4.3"
 sp-externalities = { version = "0.19.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-externalities" }
 sp-io = { version = "23.0.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-io" }
 sp-core = { version = "21.0.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-core" }
+sp-runtime = { version = "24.0.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-runtime" }
+sp-std = { version = "8.0.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-std" }
 pallet-balances = { version = "4.0.0-dev", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "pallet-balances" }
+pallet-timestamp = { version = "4.0.0-dev", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "pallet-timestamp" }
 frame-support = { version = "4.0.0-dev", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "frame-support" }
 frame-system = { version = "4.0.0-dev", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "frame-system" }
 fp-evm = { version = "3.0.0-dev", git = "https://github.com/paritytech/frontier", branch = "master", package = "fp-evm", default-features = false }
 pallet-evm = { version = "6.0.0-dev", git = "https://github.com/paritytech/frontier", branch = "master", package = "pallet-evm" }
+scale-info = { version = "2.9.0", default-features = false, features = ["derive"] }
 
 # ink! contracts
 crypto = { path = "./contracts/ink/crypto", features = ["ink-as-dependency"] }

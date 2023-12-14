@@ -1,9 +1,11 @@
-use super::drink::{runtime::AccountIdFor, BalanceOf};
 use fp_evm::{CreateInfo, ExitReason};
 use frame_support::traits::fungible::Mutate;
 use pallet_evm::Runner;
 use sp_core::{H160, H256, U256};
 use sp_io::TestExternalities;
+
+pub type AccountIdFor<R> = <R as frame_system::Config>::AccountId;
+pub type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 
 pub struct EvmSandbox<R> {
     externalities: TestExternalities,

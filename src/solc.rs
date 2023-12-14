@@ -3,7 +3,6 @@ use std::{
     path::{Path, PathBuf},
     process::Command,
 };
-use contract_build::Target;
 
 /// Builds the Solidity source in `path_to_source_sol`.
 /// Returns the path to the build output directory.

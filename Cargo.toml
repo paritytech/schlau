@@ -26,13 +26,14 @@ drink-wasm = { git = "https://github.com/ascjones/drink", branch = "wasm", packa
 ink = { git = "https://github.com/paritytech/ink", branch = "at/riscv", package = "ink", default-features = false }
 
 # pallet-evm API
-sp-externalities = { version = "0.19.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-externalities", optional = true }
-sp-io = { version = "23.0.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-io", optional = true  }
-sp-core = { version = "21.0.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-core", optional = true  }
-pallet-balances = { version = "4.0.0-dev", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "pallet-balances", optional = true  }
-frame-support = { version = "4.0.0-dev", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "frame-support", optional = true }
-fp-evm = { version = "3.0.0-dev", git = "https://github.com/paritytech/frontier", branch = "master", package = "fp-evm", default-features = false, optional = true }
-pallet-evm = { version = "6.0.0-dev", git = "https://github.com/paritytech/frontier", branch = "master", package = "pallet-evm", optional = true  }
+sp-externalities = { version = "0.19.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-externalities" }
+sp-io = { version = "23.0.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-io" }
+sp-core = { version = "21.0.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-core" }
+pallet-balances = { version = "4.0.0-dev", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "pallet-balances" }
+frame-support = { version = "4.0.0-dev", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "frame-support" }
+frame-system = { version = "4.0.0-dev", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "frame-system" }
+fp-evm = { version = "3.0.0-dev", git = "https://github.com/paritytech/frontier", branch = "master", package = "fp-evm", default-features = false }
+pallet-evm = { version = "6.0.0-dev", git = "https://github.com/paritytech/frontier", branch = "master", package = "pallet-evm" }
 
 # ink! contracts
 crypto = { path = "./contracts/ink/crypto", features = ["ink-as-dependency"] }
@@ -43,18 +44,12 @@ config = "0.13.4"
 name = "ink"
 harness = false
 
+[[bench]]
+name = "solidity"
+harness = false
+
 [features]
 default = []
-evm = [
-    "wasm", # enable the `wasm` feature so the `ink` benches still run.
-    "frame-support",
-    "sp-core",
-    "sp-externalities",
-    "sp-io",
-    "pallet-balances",
-    "pallet-evm",
-    "fp-evm",
-]
 wasm = [
     "drink-wasm",
 ]

@@ -1,8 +1,9 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use schlau::evm::EvmSandbox;
+use schlau::evm::{EvmRuntime, EvmSandbox};
 
 fn computation(c: &mut Criterion) {
     let contract = schlau::solc::build_contract("contracts/solidity/computation.sol").unwrap();
+    let sandbox = EvmSandbox::<EvmRuntime>::new();
 
     let mut group = c.benchmark_group("computation");
     group.sample_size(30);

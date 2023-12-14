@@ -11,7 +11,7 @@ use sp_std::{boxed::Box, prelude::*, str::FromStr};
 use pallet_evm::{EnsureAddressNever, EnsureAddressRoot, FeeCalculator, IdentityAddressMapping};
 
 frame_support::construct_runtime! {
-    pub enum Test {
+    pub enum EvmRuntime {
         System: frame_system::{Pallet, Call, Config<T>, Storage, Event<T>},
         Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
         Timestamp: pallet_timestamp::{Pallet, Call, Storage},
@@ -24,7 +24,7 @@ parameter_types! {
     pub BlockWeights: frame_system::limits::BlockWeights =
         frame_system::limits::BlockWeights::simple_max(Weight::from_parts(1024, 0));
 }
-impl frame_system::Config for Test {
+impl frame_system::Config for EvmRuntime {
     type RuntimeEvent = RuntimeEvent;
     type BaseCallFilter = frame_support::traits::Everything;
     type BlockWeights = ();
@@ -54,7 +54,7 @@ impl frame_system::Config for Test {
 parameter_types! {
     pub const ExistentialDeposit: u64 = 0;
 }
-impl pallet_balances::Config for Test {
+impl pallet_balances::Config for EvmRuntime {
     type RuntimeEvent = RuntimeEvent;
     type WeightInfo = ();
     type Balance = u64;
@@ -74,7 +74,7 @@ impl pallet_balances::Config for Test {
 parameter_types! {
     pub const MinimumPeriod: u64 = 1000;
 }
-impl pallet_timestamp::Config for Test {
+impl pallet_timestamp::Config for EvmRuntime {
     type Moment = u64;
     type OnTimestampSet = ();
     type MinimumPeriod = MinimumPeriod;
@@ -103,7 +103,7 @@ parameter_types! {
     pub WeightPerGas: Weight = Weight::from_parts(20_000, 0);
     pub SuicideQuickClearLimit: u32 = 0;
 }
-impl pallet_evm::Config for Test {
+impl pallet_evm::Config for EvmRuntime {
     type FeeCalculator = FixedGasPrice;
     type GasWeightMapping = pallet_evm::FixedGasWeightMapping<Self>;
     type WeightPerGas = WeightPerGas;

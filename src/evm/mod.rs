@@ -1,15 +1,20 @@
 mod runtime;
 
 use fp_evm::{CreateInfo, ExitReason};
+use frame_support::sp_runtime;
 use frame_support::traits::fungible::Mutate;
+use frame_system::GenesisConfig;
 use pallet_evm::Runner;
 use sp_core::{H160, H256, U256};
 use sp_io::TestExternalities;
+use sp_runtime::BuildStorage;
+
+pub use runtime::EvmRuntime;
 
 pub type AccountIdFor<R> = <R as frame_system::Config>::AccountId;
 pub type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 
-pub struct EvmSandbox<R> {
+pub struct EvmSandbox<R = EvmRuntime> {
     externalities: TestExternalities,
     phantom: std::marker::PhantomData<R>,
 }
@@ -19,6 +24,26 @@ where
     R: pallet_evm::Config + pallet_balances::Config,
     AccountIdFor<R>: From<H160> + Into<H160>,
 {
+    pub fn new() -> Self {
+        let storage = GenesisConfig::<R>::default()
+            .build_storage()
+            .expect("error building storage");
+
+        let sandbox = Self {
+            externalities: TestExternalities::new(storage),
+            phantom: Default::default(),
+        };
+
+        // sandbox
+        //     .externalities
+        //     // We start the chain from the 1st block, so that events are collected (they are not
+        //     // recorded for the genesis block...).
+        //     .execute_with(|| R::initialize_block(BlockNumberFor::<R>::one(), Default::default()))
+        //     .expect("Error initializing block");
+
+        sandbox
+    }
+
     pub fn execute_with<T>(&mut self, execute: impl FnOnce() -> T) -> T {
         self.externalities.execute_with(execute)
     }

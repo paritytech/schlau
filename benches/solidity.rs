@@ -2,7 +2,6 @@ use criterion::{criterion_group, criterion_main, Criterion};
 
 fn computation(c: &mut Criterion) {
     let contract = schlau::solc::build_contract("contracts/solidity/computation.sol").unwrap();
-    println!("contract: {:?}", contract);
 
     let mut group = c.benchmark_group("computation");
     group.sample_size(30);

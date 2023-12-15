@@ -1,5 +1,4 @@
 /target
 contracts/**/target
 contracts/**/Cargo.lock
-
-
+contracts/**/*.bin

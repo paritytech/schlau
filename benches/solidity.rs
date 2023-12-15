@@ -3,7 +3,7 @@ use alloy_json_abi::JsonAbi;
 use alloy_primitives::I256;
 use criterion::{criterion_group, criterion_main, Criterion};
 use schlau::evm::{CallArgs, CreateArgs, EvmRuntime, EvmSandbox, DEFAULT_ACCOUNT};
-use sp_core::{H160, U256};
+use sp_core::U256;
 
 fn computation(c: &mut Criterion) {
     let contract = schlau::solc::build_contract("contracts/solidity/computation.sol").unwrap();

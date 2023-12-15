@@ -2,7 +2,7 @@ use alloy_dyn_abi::{DynSolValue, JsonAbiExt};
 use alloy_json_abi::JsonAbi;
 use alloy_primitives::I256;
 use criterion::{criterion_group, criterion_main, Criterion};
-use schlau::evm::{CallArgs, CreateArgs, EvmRuntime, EvmSandbox};
+use schlau::evm::{CallArgs, CreateArgs, EvmRuntime, EvmSandbox, DEFAULT_ACCOUNT};
 use sp_core::{H160, U256};
 
 fn computation(c: &mut Criterion) {
@@ -13,9 +13,11 @@ fn computation(c: &mut Criterion) {
     let json = std::fs::read_to_string(abi_path).unwrap();
     let abi: JsonAbi = serde_json::from_str(&json).unwrap();
 
-    let source = H160::default();
+    let balance = sandbox.free_balance(DEFAULT_ACCOUNT);
+    println!("balance: {}", balance);
+
     let create_args = CreateArgs {
-        source,
+        source: DEFAULT_ACCOUNT,
         init: contract,
         gas_limit: 1_000_000_000,
         max_fee_per_gas: U256::from(1_000_000_000),

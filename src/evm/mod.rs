@@ -14,6 +14,8 @@ pub use runtime::EvmRuntime;
 pub type AccountIdFor<R> = <R as frame_system::Config>::AccountId;
 pub type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 
+pub const DEFAULT_ACCOUNT: H160 = H160::repeat_byte(1);
+
 pub struct EvmSandbox<R = EvmRuntime> {
     externalities: TestExternalities,
     phantom: std::marker::PhantomData<R>,
@@ -23,11 +25,22 @@ impl<R> EvmSandbox<R>
 where
     R: pallet_evm::Config + pallet_balances::Config,
     AccountIdFor<R>: From<H160> + Into<H160>,
+    BalanceOf<R>: From<u64>,
 {
     pub fn new() -> Self {
-        let storage = GenesisConfig::<R>::default()
+        let mut storage = GenesisConfig::<R>::default()
             .build_storage()
             .expect("error building storage");
+
+        // initialize the balance of the default account
+        pallet_balances::GenesisConfig::<R> {
+            balances: vec![(
+                AccountIdFor::<R>::from(DEFAULT_ACCOUNT),
+                BalanceOf::<R>::from(u64::MAX),
+            )],
+        }
+        .assimilate_storage(&mut storage)
+        .unwrap();
 
         let sandbox = Self {
             externalities: TestExternalities::new(storage),
@@ -147,6 +160,16 @@ where
         let address = AccountIdFor::<R>::from(address);
         self.execute_with(|| pallet_balances::Pallet::<R>::mint_into(&address, amount))
             .map_err(|_err| anyhow::anyhow!("error minting into account"))
+    }
+
+    /// Return the free balance of an account.
+    ///
+    /// # Arguments
+    ///
+    /// * `address` - The address of the account to query.
+    pub fn free_balance(&mut self, address: H160) -> BalanceOf<R> {
+        let address = AccountIdFor::<R>::from(address);
+        self.execute_with(|| pallet_balances::Pallet::<R>::free_balance(&address))
     }
 }
 

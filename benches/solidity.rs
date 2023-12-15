@@ -3,7 +3,7 @@ use alloy_json_abi::JsonAbi;
 use alloy_primitives::I256;
 use criterion::{criterion_group, criterion_main, Criterion};
 use schlau::evm::{CallArgs, CreateArgs, EvmRuntime, EvmSandbox};
-use sp_core::H160;
+use sp_core::{H160, U256};
 
 fn computation(c: &mut Criterion) {
     let contract = schlau::solc::build_contract("contracts/solidity/computation.sol").unwrap();
@@ -18,6 +18,7 @@ fn computation(c: &mut Criterion) {
         source,
         init: contract,
         gas_limit: 1_000_000_000,
+        max_fee_per_gas: U256::from(1_000_000_000),
         ..Default::default()
     };
     let address = sandbox.create(create_args).unwrap();

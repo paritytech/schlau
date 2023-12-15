@@ -81,7 +81,11 @@ where
                 None,
                 R::config(),
             )
-            .map_err(|_err| anyhow::anyhow!("error invoking create"))?;
+            .map_err(|err| {
+                let err: sp_runtime::DispatchError = err.error.into();
+                let ser_err = serde_json::to_string_pretty(&err).unwrap();
+                anyhow::anyhow!("error invoking create: {}", ser_err)
+            })?;
 
             if let ExitReason::Succeed(_) = exit_reason {
                 Ok(create_address)
@@ -122,7 +126,11 @@ where
                 None,
                 R::config(),
             )
-            .map_err(|_err| anyhow::anyhow!("error invoking call"))?;
+            .map_err(|err| {
+                let err: sp_runtime::DispatchError = err.error.into();
+                let ser_err = serde_json::to_string_pretty(&err).unwrap();
+                anyhow::anyhow!("error invoking call: {}", ser_err)
+            })?;
             if let ExitReason::Succeed(_) = info.exit_reason {
                 Ok(())
             } else {

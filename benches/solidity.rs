@@ -1,9 +1,30 @@
+use alloy_dyn_abi::{DynSolValue, JsonAbiExt};
+use alloy_json_abi::JsonAbi;
+use alloy_primitives::I256;
 use criterion::{criterion_group, criterion_main, Criterion};
-use schlau::evm::{EvmRuntime, EvmSandbox};
+use schlau::evm::{CallArgs, CreateArgs, EvmRuntime, EvmSandbox};
+use sp_core::H160;
 
 fn computation(c: &mut Criterion) {
     let contract = schlau::solc::build_contract("contracts/solidity/computation.sol").unwrap();
-    let sandbox = EvmSandbox::<EvmRuntime>::new();
+    let mut sandbox = EvmSandbox::<EvmRuntime>::new();
+
+    let abi_path = "contracts/solidity/Computation.abi";
+    let json = std::fs::read_to_string(abi_path).unwrap();
+    let abi: JsonAbi = serde_json::from_str(&json).unwrap();
+
+    let source = H160::default();
+    let create_args = CreateArgs {
+        source,
+        init: contract,
+        gas_limit: 1_000_000_000,
+        ..Default::default()
+    };
+    let address = sandbox.create(create_args).unwrap();
+
+    let func = &abi.function("odd_product").unwrap()[0];
+    let input = [DynSolValue::Int(I256::try_from(100i32).unwrap(), 32)];
+    let data = func.abi_encode_input(&input).unwrap();
 
     let mut group = c.benchmark_group("computation");
     group.sample_size(30);

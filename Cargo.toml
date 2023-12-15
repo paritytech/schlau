@@ -25,6 +25,10 @@ drink-riscv = { git = "https://github.com/ascjones/drink", branch = "riscv", pac
 drink-wasm = { git = "https://github.com/ascjones/drink", branch = "wasm", package = "drink", optional = true }
 ink = { git = "https://github.com/paritytech/ink", branch = "at/riscv", package = "ink", default-features = false }
 hex = "0.4.3"
+alloy-primitives = "0.5.2"
+alloy-json-abi = "0.5.2"
+alloy-dyn-abi = "0.5.2"
+serde_json = "1.0.64"
 
 # pallet-evm API
 sp-externalities = { version = "0.19.0", git = "https://github.com/paritytech/polkadot-sdk", branch = "master", package = "sp-externalities" }

@@ -142,16 +142,19 @@ where
     }
 }
 
+#[derive(Default)]
 pub struct CreateArgs {
-    source: H160,
-    init: Vec<u8>,
-    value: U256,
-    gas_limit: u64,
-    max_fee_per_gas: U256,
-    max_priority_fee_per_gas: Option<U256>,
-    nonce: Option<U256>,
-    access_list: Vec<(H160, Vec<H256>)>,
+    pub source: H160,
+    pub init: Vec<u8>,
+    pub value: U256,
+    pub gas_limit: u64,
+    pub max_fee_per_gas: U256,
+    pub max_priority_fee_per_gas: Option<U256>,
+    pub nonce: Option<U256>,
+    pub access_list: Vec<(H160, Vec<H256>)>,
 }
+
+#[derive(Default)]
 
 pub struct CallArgs {
     source: H160,

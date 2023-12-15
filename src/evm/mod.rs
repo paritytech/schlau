@@ -185,16 +185,16 @@ pub struct CreateArgs {
     pub access_list: Vec<(H160, Vec<H256>)>,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 
 pub struct CallArgs {
-    source: H160,
-    target: H160,
-    input: Vec<u8>,
-    value: U256,
-    gas_limit: u64,
-    max_fee_per_gas: U256,
-    max_priority_fee_per_gas: Option<U256>,
-    nonce: Option<U256>,
-    access_list: Vec<(H160, Vec<H256>)>,
+    pub source: H160,
+    pub target: H160,
+    pub input: Vec<u8>,
+    pub value: U256,
+    pub gas_limit: u64,
+    pub max_fee_per_gas: U256,
+    pub max_priority_fee_per_gas: Option<U256>,
+    pub nonce: Option<U256>,
+    pub access_list: Vec<(H160, Vec<H256>)>,
 }

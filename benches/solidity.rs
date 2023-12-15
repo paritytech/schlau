@@ -21,13 +21,40 @@ fn computation(c: &mut Criterion) {
         ..Default::default()
     };
     let address = sandbox.create(create_args).unwrap();
+
+    let mut group = c.benchmark_group("computation");
+    group.sample_size(30);
+
     let n = 100_000;
+    let bench_name = format!("odd_product_{}", n);
 
     let func = &abi.function("odd_product").unwrap()[0];
-    let input = [DynSolValue::Int(I256::try_from(100_000).unwrap(), 32)];
+    let input = [DynSolValue::Int(I256::try_from(n).unwrap(), 32)];
     let data = func.abi_encode_input(&input).unwrap();
 
-    let call_args = CallArgs {
+    let odd_product_args = CallArgs {
+        source: DEFAULT_ACCOUNT,
+        target: address.clone(),
+        input: data,
+        gas_limit: 1_000_000_000,
+        max_fee_per_gas: U256::from(1_000_000_000),
+        ..Default::default()
+    };
+
+    group.bench_function(bench_name, |b| {
+        b.iter(|| {
+            sandbox.call(odd_product_args.clone()).unwrap();
+        })
+    });
+
+    let n = 100_000;
+    let bench_name = format!("triangle_number_{}", n);
+
+    let func = &abi.function("triangle_number").unwrap()[0];
+    let input = [DynSolValue::Int(I256::try_from(n).unwrap(), 64)];
+    let data = func.abi_encode_input(&input).unwrap();
+
+    let triangle_num_args = CallArgs {
         source: DEFAULT_ACCOUNT,
         target: address,
         input: data,
@@ -36,14 +63,9 @@ fn computation(c: &mut Criterion) {
         ..Default::default()
     };
 
-    let mut group = c.benchmark_group("computation");
-    group.sample_size(30);
-
-    let bench_name = format!("odd_product_{}", n);
-
     group.bench_function(bench_name, |b| {
         b.iter(|| {
-            sandbox.call(call_args.clone()).unwrap();
+            sandbox.call(triangle_num_args.clone()).unwrap();
         })
     });
 

@@ -4,4 +4,5 @@ contracts/**/Cargo.lock
 contracts/**/*.bin
 solang-llvm/llvm-project
 solang-llvm/llvm16.0
+solang-llvm/solang
 llvm16.0

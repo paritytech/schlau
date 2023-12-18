@@ -1,7 +1,5 @@
 use alloy_dyn_abi::{DynSolValue, JsonAbiExt};
-use alloy_json_abi::JsonAbi;
 use alloy_primitives::I256;
-use contract_build::Target;
 use criterion::{criterion_group, criterion_main, Criterion};
 use schlau::evm::{CallArgs, CreateArgs, EvmRuntime, EvmSandbox, DEFAULT_ACCOUNT};
 use sp_core::U256;
@@ -77,14 +75,7 @@ fn computation_pallet_contracts(c: &mut Criterion) {
     };
     use subxt_signer::sr25519::dev;
 
-    let target = if cfg!(feature = "wasm") {
-        Target::Wasm
-    } else if cfg!(feature = "riscv") {
-        Target::RiscV
-    } else {
-        panic!("No VM target feature enabled")
-    };
-    let contract = solang::build_and_load_contract("contracts/solidity/computation.sol", target).unwrap();
+    let contract = solang::build_and_load_contract("contracts/solidity/computation.sol").unwrap();
     let code = contract.source.wasm.unwrap().0.clone();
 
     let mut drink_api = DrinkApi::<MinimalRuntime>::new();

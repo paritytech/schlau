@@ -2,6 +2,8 @@
 contracts/**/target
 contracts/**/Cargo.lock
 contracts/**/*.bin
+contracts/**/*.wasm
+contracts/**/*.contract
 solang-llvm/llvm-project
 solang-llvm/llvm16.0
 solang-llvm/solang

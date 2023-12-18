@@ -5,6 +5,7 @@ use std::{
 };
 
 use contract_build::Target;
+use ink::metadata::InkProject;
 
 /// Builds the Solidity source in `path_to_source_sol`.
 /// Returns the path to the build output directory.
@@ -53,9 +54,9 @@ where
     }
 }
 
-pub fn build_and_load_contract<P>(path_to_source_sol: P) -> anyhow::Result<contract_metadata::ContractMetadata>
-    where
-        P: AsRef<Path> + Copy,
+pub fn build_and_load_contract<P>(path_to_source_sol: P) -> anyhow::Result<BuildResult>
+where
+    P: AsRef<Path> + Copy,
 {
     let target = if cfg!(feature = "wasm") {
         Target::Wasm
@@ -65,10 +66,29 @@ pub fn build_and_load_contract<P>(path_to_source_sol: P) -> anyhow::Result<contr
         panic!("No VM target feature enabled")
     };
     let out_dir = build_contract(path_to_source_sol, target)?;
-    let contract_name = path_to_source_sol.as_ref().file_stem().unwrap().to_str().unwrap();
+    let contract_name = path_to_source_sol
+        .as_ref()
+        .file_stem()
+        .unwrap()
+        .to_str()
+        .unwrap();
     let contract_path = out_dir.join(format!("{}.contract", contract_name));
     let contract = contract_metadata::ContractMetadata::load(contract_path)?;
-    Ok(contract)
+    let source = contract.source.wasm.ok_or(anyhow::anyhow!(
+        "Contract {} does not contain a wasm blob",
+        contract_name
+    ))?;
+    let abi: InkProject = serde_json::from_value(serde_json::Value::Object(contract.abi))?;
+
+    Ok(BuildResult {
+        code: source.0,
+        abi,
+    })
+}
+
+pub struct BuildResult {
+    pub code: Vec<u8>,
+    pub abi: InkProject,
 }
 
 #[cfg(test)]

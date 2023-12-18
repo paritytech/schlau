@@ -76,29 +76,13 @@ fn computation_pallet_contracts(c: &mut Criterion) {
     use subxt_signer::sr25519::dev;
 
     let contract = solang::build_and_load_contract("contracts/solidity/computation.sol").unwrap();
-    let code = contract.source.wasm.unwrap().0.clone();
 
     let mut drink_api = DrinkApi::<MinimalRuntime>::new();
 
-    let create_args = CreateArgs::<MinimalRuntime>::new(code, dev::alice());
+    let create_args = CreateArgs::<MinimalRuntime>::new(contract.code, dev::alice());
 
     let contract_account = drink_api.instantiate_with_code(create_args).unwrap();
 
-    // let mut sandbox = EvmSandbox::<EvmRuntime>::new();
-    //
-    // let abi_path = "contracts/solidity/Computation.abi";
-    // let json = std::fs::read_to_string(abi_path).unwrap();
-    // let abi: JsonAbi = serde_json::from_str(&json).unwrap();
-    //
-    // let create_args = CreateArgs {
-    //     source: DEFAULT_ACCOUNT,
-    //     init: contract,
-    //     gas_limit: 1_000_000_000,
-    //     max_fee_per_gas: U256::from(1_000_000_000),
-    //     ..Default::default()
-    // };
-    // let address = sandbox.create(create_args).unwrap();
-    //
     // let mut group = c.benchmark_group("computation_pallet_contracts");
     // group.sample_size(30);
     //
@@ -124,7 +108,6 @@ fn computation_pallet_contracts(c: &mut Criterion) {
     //     })
     // });
 }
-
 
 criterion_group!(benches, computation_evm, computation_pallet_contracts);
 criterion_main!(benches);

@@ -1,9 +1,9 @@
+use alloy_json_abi::JsonAbi;
 use std::{
     env,
     path::{Path, PathBuf},
     process::Command,
 };
-use alloy_json_abi::JsonAbi;
 
 /// Builds the Solidity source in `path_to_source_sol`.
 /// Returns the bytes of the compiled contract.
@@ -15,19 +15,22 @@ where
 
     let bin_path = PathBuf::from(manifest_dir).join("bin").join("solc");
 
-    let abi_str = run_and_extract_output(path_to_source_sol, &bin_path, "--abi", "Contract JSON ABI")?;
+    let abi_str =
+        run_and_extract_output(path_to_source_sol, &bin_path, "--abi", "Contract JSON ABI")?;
     let abi: JsonAbi = serde_json::from_str(&abi_str)?;
 
     let code_hex = run_and_extract_output(path_to_source_sol, &bin_path, "--bin", "Binary:")?;
     let code = hex::decode(code_hex)?;
 
-    Ok(BuildResult {
-        abi,
-        code,
-    })
+    Ok(BuildResult { abi, code })
 }
 
-fn run_and_extract_output<P>(path_to_source_sol: P, bin_path: &PathBuf, arg: &str, prefix: &str) -> anyhow::Result<String>
+fn run_and_extract_output<P>(
+    path_to_source_sol: P,
+    bin_path: &PathBuf,
+    arg: &str,
+    prefix: &str,
+) -> anyhow::Result<String>
 where
     P: AsRef<Path> + Copy,
 {
@@ -47,7 +50,9 @@ where
         }
         Err(anyhow::anyhow!("Failed to find '{prefix}' in output"))
     } else {
-        Err(anyhow::anyhow!("Failed to execute command fod contract:\n {output:?}"))
+        Err(anyhow::anyhow!(
+            "Failed to execute command fod contract:\n {output:?}"
+        ))
     }
 }
 

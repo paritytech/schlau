@@ -26,8 +26,7 @@ pub struct EvmContract {
 impl EvmContract {
     fn init(contract: &str) -> Self {
         let result =
-            schlau::solc::build_contract(&format!("../contracts/solidity/{}.sol", contract))
-                .unwrap();
+            schlau::solc::build_contract(&format!("contracts/solidity/{}.sol", contract)).unwrap();
         let mut sandbox = EvmSandbox::<EvmRuntime>::new();
 
         let create_args = EvmCreateArgs {
@@ -96,31 +95,29 @@ impl SolangContract {
     }
 }
 
-fn computation_evm(c: &mut Criterion) {
+fn triangle_number(c: &mut Criterion) {
+    let n = 100_000i64;
+
+    let mut group = c.benchmark_group(format!("triangle_number_{}", n));
+
+    let mut solang_contract = SolangContract::init("Computation");
     let mut evm_contract = EvmContract::init("Computation");
 
-    let mut group = c.benchmark_group("computation_evm");
-    group.sample_size(30);
+    group.bench_function("solang", |b| {
+        let triangle_number_args = solang_contract.call_args("triangle_number", n);
 
-    let n = 100_000;
-    let bench_name = format!("odd_product_{}", n);
-
-    let input = [DynSolValue::Int(I256::try_from(n).unwrap(), 32)];
-    let odd_product_args = evm_contract.call_args("odd_product", &input);
-
-    group.bench_function(bench_name, |b| {
         b.iter(|| {
-            evm_contract.sandbox.call(odd_product_args.clone()).unwrap();
+            solang_contract
+                .drink_api
+                .call(triangle_number_args.clone())
+                .unwrap();
         })
     });
 
-    let n = 100_000;
-    let bench_name = format!("triangle_number_{}", n);
+    group.bench_function("evm", |b| {
+        let input = [DynSolValue::Int(I256::try_from(n).unwrap(), 64)];
+        let triangle_number_args = evm_contract.call_args("triangle_number", &input);
 
-    let input = [DynSolValue::Int(I256::try_from(n).unwrap(), 64)];
-    let triangle_number_args = evm_contract.call_args("triangle_number", &input);
-
-    group.bench_function(bench_name, |b| {
         b.iter(|| {
             evm_contract
                 .sandbox
@@ -132,24 +129,37 @@ fn computation_evm(c: &mut Criterion) {
     group.finish()
 }
 
-fn computation_pallet_contracts(c: &mut Criterion) {
-    let mut contract = SolangContract::init("Computation");
+fn odd_product(c: &mut Criterion) {
+    let n = 100_000i32;
 
-    let mut group = c.benchmark_group("computation_pallet_contracts");
+    let mut solang_contract = SolangContract::init("Computation");
+    let mut evm_contract = EvmContract::init("Computation");
+
+    let mut group = c.benchmark_group(format!("odd_product_{}", n));
     group.sample_size(30);
 
-    let n = 100_000i32;
-    let bench_name = format!("odd_product_{}", n);
+    group.bench_function("solang", |b| {
+        let odd_product_args = solang_contract.call_args("odd_product", n);
 
-    let odd_product_args = contract.call_args("odd_product", n);
-
-    group.bench_function(bench_name, |b| {
         b.iter(|| {
-            contract.drink_api.call(odd_product_args.clone()).unwrap();
+            solang_contract
+                .drink_api
+                .call(odd_product_args.clone())
+                .unwrap();
         })
     });
+
+    group.bench_function("evm", |b| {
+        let input = [DynSolValue::Int(I256::try_from(n).unwrap(), 32)];
+        let odd_product_args = evm_contract.call_args("odd_product", &input);
+
+        b.iter(|| {
+            evm_contract.sandbox.call(odd_product_args.clone()).unwrap();
+        })
+    });
+
+    group.finish()
 }
 
-criterion_group!(benches, computation_pallet_contracts);
-// criterion_group!(benches, computation_evm, computation_pallet_contracts);
+criterion_group!(benches, odd_product, triangle_number);
 criterion_main!(benches);

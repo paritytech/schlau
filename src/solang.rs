@@ -53,6 +53,77 @@ where
     }
 }
 
+pub fn build_and_load_contract<P>(path_to_source_sol: P) -> anyhow::Result<BuildResult>
+where
+    P: AsRef<Path> + Copy,
+{
+    let target = if cfg!(feature = "wasm") {
+        Target::Wasm
+    } else if cfg!(feature = "riscv") {
+        Target::RiscV
+    } else {
+        panic!("No VM target feature enabled")
+    };
+    let out_dir = build_contract(path_to_source_sol, target)?;
+    let contract_name = path_to_source_sol
+        .as_ref()
+        .file_stem()
+        .unwrap()
+        .to_str()
+        .unwrap();
+    let contract_path = out_dir.join(format!("{}.contract", contract_name));
+    let contract = contract_metadata::ContractMetadata::load(contract_path)?;
+    let source = contract.source.wasm.ok_or(anyhow::anyhow!(
+        "Contract {} does not contain a wasm blob",
+        contract_name
+    ))?;
+
+    Ok(BuildResult {
+        code: source.0,
+        abi: contract.abi,
+    })
+}
+
+pub struct BuildResult {
+    pub code: Vec<u8>,
+    pub abi: serde_json::Map<String, serde_json::Value>,
+}
+
+impl BuildResult {
+    pub fn constructor_selector(&self, constructor: &str) -> anyhow::Result<Vec<u8>> {
+        self.selector("constructors", constructor)
+    }
+
+    pub fn message_selector(&self, message: &str) -> anyhow::Result<Vec<u8>> {
+        self.selector("messages", message)
+    }
+
+    fn selector(&self, constructors_or_messages: &str, label: &str) -> anyhow::Result<Vec<u8>> {
+        let spec = self
+            .abi
+            .get("spec")
+            .ok_or(anyhow::anyhow!("Contract does not contain a spec field"))?;
+        let messages = spec
+            .get(constructors_or_messages)
+            .ok_or(anyhow::anyhow!(
+                "Contract does not contain a '{}' field",
+                spec
+            ))?
+            .as_array()
+            .ok_or(anyhow::anyhow!("'{}' should be an array", spec))?;
+        let message = messages
+            .iter()
+            .find(|m| m["label"] == label)
+            .ok_or(anyhow::anyhow!("{} not found", label))?;
+        let selector = message
+            .get("selector")
+            .ok_or(anyhow::anyhow!("{} has no selector", message))?
+            .as_str()
+            .ok_or(anyhow::anyhow!("Selector should be a string"))?;
+        Ok(hex::decode(selector.trim_start_matches("0x"))?)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::{fs, path::PathBuf};

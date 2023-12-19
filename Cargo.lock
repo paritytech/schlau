@@ -5451,6 +5451,7 @@ dependencies = [
  "computation",
  "config",
  "contract-build 4.0.0-rc.1 (git+https://github.com/paritytech/cargo-contract?branch=at/riscv)",
+ "contract-metadata 4.0.0-rc.1 (git+https://github.com/paritytech/cargo-contract?branch=at/riscv)",
  "criterion",
  "crypto",
  "drink 0.8.2",

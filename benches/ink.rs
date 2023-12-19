@@ -6,7 +6,7 @@ use schlau::{drink::runtime::MinimalRuntime, drink_api::CallArgs, ink::InkDrink}
 
 macro_rules! ink_contract_bench {
     ( $name:ident, $contract:ident, $contract_ref:ident, $message:ident, $args:tt) => {
-        fn $name(c: &mut Criterion) {
+        fn $message(c: &mut Criterion) {
             use $name::$name::{$contract, $contract_ref};
 
             let contract_name = stringify!($name);
@@ -42,6 +42,13 @@ ink_contract_bench!(
     odd_product,
     100_000
 );
+ink_contract_bench!(
+    computation,
+    Computation,
+    ComputationRef,
+    triangle_number,
+    100_000
+);
 
-criterion_group!(benches, crypto, computation);
+criterion_group!(benches, sha3, odd_product, triangle_number);
 criterion_main!(benches);

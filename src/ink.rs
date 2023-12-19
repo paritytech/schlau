@@ -96,13 +96,7 @@ impl<Runtime: RuntimeT + pallet_contracts::Config> CallArgs<Runtime> {
         let account_id = (*account_id.as_ref()).into();
         let exec_input = Encode::encode(message.clone().params().exec_input());
 
-        Self::new(
-            account_id,
-            caller,
-            exec_input,
-            Default::default(),
-            Default::default(),
-        )
+        Self::new(account_id, caller, exec_input)
     }
 }
 

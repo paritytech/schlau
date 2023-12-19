@@ -5,7 +5,7 @@ use schlau::evm::{CallArgs, CreateArgs, EvmRuntime, EvmSandbox, DEFAULT_ACCOUNT}
 use sp_core::U256;
 
 fn computation_evm(c: &mut Criterion) {
-    let result = schlau::solc::build_contract("contracts/solidity/computation.sol").unwrap();
+    let result = schlau::solc::build_contract("../contracts/solidity/Computation.sol").unwrap();
     let mut sandbox = EvmSandbox::<EvmRuntime>::new();
 
     let create_args = CreateArgs {
@@ -75,7 +75,7 @@ fn computation_pallet_contracts(c: &mut Criterion) {
     };
     use subxt_signer::sr25519::dev;
 
-    let contract = solang::build_and_load_contract("contracts/solidity/computation.sol").unwrap();
+    let contract = solang::build_and_load_contract("contracts/solidity/Computation.sol").unwrap();
 
     let mut drink_api = DrinkApi::<MinimalRuntime>::new();
 
@@ -83,12 +83,17 @@ fn computation_pallet_contracts(c: &mut Criterion) {
 
     let contract_account = drink_api.instantiate_with_code(create_args).unwrap();
 
-    // let mut group = c.benchmark_group("computation_pallet_contracts");
-    // group.sample_size(30);
-    //
-    // let n = 100_000;
-    // let bench_name = format!("odd_product_{}", n);
-    //
+    let mut group = c.benchmark_group("computation_pallet_contracts");
+    group.sample_size(30);
+
+    let n = 100_000;
+    let bench_name = format!("odd_product_{}", n);
+
+    let message = contract.abi.spec().messages().iter().find(|m| m.label() == "odd_product").unwrap();
+
+    // todo: construct call data...
+    println!("odd_product selector {:?}", message.selector());
+
     // let func = &abi.function("odd_product").unwrap()[0];
     // let input = [DynSolValue::Int(I256::try_from(n).unwrap(), 32)];
     // let data = func.abi_encode_input(&input).unwrap();
@@ -109,5 +114,6 @@ fn computation_pallet_contracts(c: &mut Criterion) {
     // });
 }
 
-criterion_group!(benches, computation_evm, computation_pallet_contracts);
+criterion_group!(benches, computation_pallet_contracts);
+// criterion_group!(benches, computation_evm, computation_pallet_contracts);
 criterion_main!(benches);

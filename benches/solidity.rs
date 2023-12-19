@@ -1,16 +1,42 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use drink_wasm::Weight;
 
-fn computation_evm(c: &mut Criterion) {
-    use alloy_dyn_abi::{DynSolValue, JsonAbiExt};
-    use alloy_primitives::I256;
-    use schlau::evm::{CallArgs, CreateArgs, EvmRuntime, EvmSandbox, DEFAULT_ACCOUNT};
-    use sp_core::U256;
+use alloy_dyn_abi::{DynSolValue, JsonAbiExt};
+use alloy_json_abi::JsonAbi;
+use alloy_primitives::I256;
+use schlau::evm::{
+    CallArgs as EvmCallArgs, CreateArgs as EvmCreateArgs, EvmRuntime, EvmSandbox, DEFAULT_ACCOUNT,
+};
+use sp_core::{H160, U256};
 
-    let result = schlau::solc::build_contract("../contracts/solidity/Computation.sol").unwrap();
+pub struct EvmContract {
+    address: H160,
+    abi: JsonAbi,
+    sandbox: EvmSandbox<EvmRuntime>,
+}
+
+impl EvmContract {
+    pub fn call_args(&self, func: &str, args: &[DynSolValue]) -> EvmCallArgs {
+        let func = &self.abi.function(func).unwrap()[0];
+        let data = func.abi_encode_input(args).unwrap();
+
+        EvmCallArgs {
+            source: DEFAULT_ACCOUNT,
+            target: self.address.clone(),
+            input: data,
+            gas_limit: 1_000_000_000,
+            max_fee_per_gas: U256::from(1_000_000_000),
+            ..Default::default()
+        }
+    }
+}
+
+fn init_evm_contract(contract: &str) -> EvmContract {
+    let result =
+        schlau::solc::build_contract(&format!("../contracts/solidity/{}.sol", contract)).unwrap();
     let mut sandbox = EvmSandbox::<EvmRuntime>::new();
 
-    let create_args = CreateArgs {
+    let create_args = EvmCreateArgs {
         source: DEFAULT_ACCOUNT,
         init: result.code,
         gas_limit: 1_000_000_000,
@@ -18,6 +44,15 @@ fn computation_evm(c: &mut Criterion) {
         ..Default::default()
     };
     let address = sandbox.create(create_args).unwrap();
+    EvmContract {
+        address,
+        abi: result.abi,
+        sandbox,
+    }
+}
+
+fn computation_evm(c: &mut Criterion) {
+    let mut evm_contract = init_evm_contract("Computation");
 
     let mut group = c.benchmark_group("computation_evm");
     group.sample_size(30);
@@ -25,44 +60,27 @@ fn computation_evm(c: &mut Criterion) {
     let n = 100_000;
     let bench_name = format!("odd_product_{}", n);
 
-    let func = &result.abi.function("odd_product").unwrap()[0];
     let input = [DynSolValue::Int(I256::try_from(n).unwrap(), 32)];
-    let data = func.abi_encode_input(&input).unwrap();
-
-    let odd_product_args = CallArgs {
-        source: DEFAULT_ACCOUNT,
-        target: address.clone(),
-        input: data,
-        gas_limit: 1_000_000_000,
-        max_fee_per_gas: U256::from(1_000_000_000),
-        ..Default::default()
-    };
+    let odd_product_args = evm_contract.call_args("odd_product", &input);
 
     group.bench_function(bench_name, |b| {
         b.iter(|| {
-            sandbox.call(odd_product_args.clone()).unwrap();
+            evm_contract.sandbox.call(odd_product_args.clone()).unwrap();
         })
     });
 
     let n = 100_000;
     let bench_name = format!("triangle_number_{}", n);
 
-    let func = &result.abi.function("triangle_number").unwrap()[0];
     let input = [DynSolValue::Int(I256::try_from(n).unwrap(), 64)];
-    let data = func.abi_encode_input(&input).unwrap();
-
-    let triangle_num_args = CallArgs {
-        source: DEFAULT_ACCOUNT,
-        target: address,
-        input: data,
-        gas_limit: 1_000_000_000,
-        max_fee_per_gas: U256::from(1_000_000_000),
-        ..Default::default()
-    };
+    let triangle_number_args = evm_contract.call_args("triangle_number", &input);
 
     group.bench_function(bench_name, |b| {
         b.iter(|| {
-            sandbox.call(triangle_num_args.clone()).unwrap();
+            evm_contract
+                .sandbox
+                .call(triangle_number_args.clone())
+                .unwrap();
         })
     });
 

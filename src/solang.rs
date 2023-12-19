@@ -90,26 +90,34 @@ pub struct BuildResult {
 }
 
 impl BuildResult {
+    pub fn constructor_selector(&self, constructor: &str) -> anyhow::Result<Vec<u8>> {
+        self.selector("constructors", constructor)
+    }
+
     pub fn message_selector(&self, message: &str) -> anyhow::Result<Vec<u8>> {
-        // println!("{}", serde_json::to_string_pretty(&self.abi)?);
+        self.selector("messages", message)
+    }
+
+    fn selector(&self, constructors_or_messages: &str, label: &str) -> anyhow::Result<Vec<u8>> {
         let spec = self
             .abi
             .get("spec")
             .ok_or(anyhow::anyhow!("Contract does not contain a spec field"))?;
         let messages = spec
-            .get("messages")
+            .get(constructors_or_messages)
             .ok_or(anyhow::anyhow!(
-                "Contract does not contain a messages field"
+                "Contract does not contain a '{}' field",
+                spec
             ))?
             .as_array()
-            .ok_or(anyhow::anyhow!("Messages should be an array"))?;
+            .ok_or(anyhow::anyhow!("'{}' should be an array", spec))?;
         let message = messages
             .iter()
-            .find(|m| m["label"] == message)
-            .ok_or(anyhow::anyhow!("Message {} not found", message))?;
+            .find(|m| m["label"] == label)
+            .ok_or(anyhow::anyhow!("{} not found", label))?;
         let selector = message
             .get("selector")
-            .ok_or(anyhow::anyhow!("Message {} has no selector", message))?
+            .ok_or(anyhow::anyhow!("{} has no selector", message))?
             .as_str()
             .ok_or(anyhow::anyhow!("Selector should be a string"))?;
         Ok(hex::decode(selector.trim_start_matches("0x"))?)

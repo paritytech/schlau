@@ -1,4 +1,5 @@
 use criterion::{criterion_group, criterion_main, Criterion};
+use drink_wasm::Weight;
 
 fn computation_evm(c: &mut Criterion) {
     use alloy_dyn_abi::{DynSolValue, JsonAbiExt};
@@ -81,9 +82,12 @@ fn computation_pallet_contracts(c: &mut Criterion) {
 
     let mut drink_api = DrinkApi::<MinimalRuntime>::new();
 
-    let create_args = CreateArgs::<MinimalRuntime>::new(contract.code.clone(), dev::alice());
+    let constructor_selector = contract.constructor_selector("new").unwrap();
+    let create_args = CreateArgs::<MinimalRuntime>::new(contract.code.clone(), dev::alice())
+        .with_data(constructor_selector);
 
     let contract_account = drink_api.instantiate_with_code(create_args).unwrap();
+    println!("contract_account: {:?}", contract_account);
 
     let mut group = c.benchmark_group("computation_pallet_contracts");
     group.sample_size(30);
@@ -94,13 +98,9 @@ fn computation_pallet_contracts(c: &mut Criterion) {
     let mut call_data = contract.message_selector("odd_product").unwrap();
     call_data.append(&mut n.encode());
 
-    let odd_product_args = CallArgs::<MinimalRuntime>::new(
-        contract_account,
-        dev::alice(),
-        call_data,
-        Default::default(),
-        Default::default(),
-    );
+    let odd_product_args =
+        CallArgs::<MinimalRuntime>::new(contract_account, dev::alice(), call_data)
+            .with_gas_limit(Weight::MAX);
 
     group.bench_function(bench_name, |b| {
         b.iter(|| {

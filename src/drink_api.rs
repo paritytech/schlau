@@ -2,7 +2,7 @@ use super::drink::{
     frame_support::traits::fungible::Inspect,
     pallet_balances, pallet_contracts,
     runtime::{AccountIdFor, Runtime as RuntimeT},
-    BalanceOf, Sandbox, DEFAULT_GAS_LIMIT,
+    BalanceOf, Sandbox, Weight, DEFAULT_GAS_LIMIT,
 };
 use subxt_signer::sr25519::{dev, Keypair};
 
@@ -92,14 +92,16 @@ where
             caller,
             exec_input,
             value,
+            gas_limit,
             storage_deposit_limit,
         } = call_args;
+        let gas_limit = gas_limit.unwrap_or(DEFAULT_GAS_LIMIT);
         let result = self.sandbox.call_contract(
             contract_account,
             value,
             exec_input,
             caller,
-            DEFAULT_GAS_LIMIT,
+            gas_limit,
             storage_deposit_limit,
             pallet_contracts::Determinism::Enforced,
         );
@@ -161,6 +163,7 @@ pub struct CallArgs<Runtime: RuntimeT + pallet_contracts::Config> {
     pub caller: AccountIdFor<Runtime>,
     pub exec_input: Vec<u8>,
     pub value: ContractsBalanceOf<Runtime>,
+    pub gas_limit: Option<Weight>,
     pub storage_deposit_limit: Option<ContractsBalanceOf<Runtime>>,
 }
 
@@ -172,15 +175,14 @@ where
         contract_account: AccountIdFor<Runtime>,
         caller: Keypair,
         exec_input: Vec<u8>,
-        value: ContractsBalanceOf<Runtime>,
-        storage_deposit_limit: Option<ContractsBalanceOf<Runtime>>,
     ) -> Self {
         Self {
             contract_account,
             caller: keypair_to_account(&caller),
             exec_input,
-            value,
-            storage_deposit_limit,
+            value: Default::default(),
+            storage_deposit_limit: None,
+            gas_limit: None,
         }
     }
 
@@ -194,6 +196,11 @@ where
         storage_deposit_limit: ContractsBalanceOf<Runtime>,
     ) -> Self {
         self.storage_deposit_limit = Some(storage_deposit_limit);
+        self
+    }
+
+    pub fn with_gas_limit(mut self, gas_limit: Weight) -> Self {
+        self.gas_limit = Some(gas_limit);
         self
     }
 }

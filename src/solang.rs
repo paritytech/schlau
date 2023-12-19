@@ -5,7 +5,6 @@ use std::{
 };
 
 use contract_build::Target;
-use ink::metadata::InkProject;
 
 /// Builds the Solidity source in `path_to_source_sol`.
 /// Returns the path to the build output directory.
@@ -78,17 +77,43 @@ where
         "Contract {} does not contain a wasm blob",
         contract_name
     ))?;
-    let abi: InkProject = serde_json::from_value(serde_json::Value::Object(contract.abi))?;
 
     Ok(BuildResult {
         code: source.0,
-        abi,
+        abi: contract.abi,
     })
 }
 
 pub struct BuildResult {
     pub code: Vec<u8>,
-    pub abi: InkProject,
+    pub abi: serde_json::Map<String, serde_json::Value>,
+}
+
+impl BuildResult {
+    pub fn message_selector(&self, message: &str) -> anyhow::Result<Vec<u8>> {
+        // println!("{}", serde_json::to_string_pretty(&self.abi)?);
+        let spec = self
+            .abi
+            .get("spec")
+            .ok_or(anyhow::anyhow!("Contract does not contain a spec field"))?;
+        let messages = spec
+            .get("messages")
+            .ok_or(anyhow::anyhow!(
+                "Contract does not contain a messages field"
+            ))?
+            .as_array()
+            .ok_or(anyhow::anyhow!("Messages should be an array"))?;
+        let message = messages
+            .iter()
+            .find(|m| m["label"] == message)
+            .ok_or(anyhow::anyhow!("Message {} not found", message))?;
+        let selector = message
+            .get("selector")
+            .ok_or(anyhow::anyhow!("Message {} has no selector", message))?
+            .as_str()
+            .ok_or(anyhow::anyhow!("Selector should be a string"))?;
+        Ok(hex::decode(selector.trim_start_matches("0x"))?)
+    }
 }
 
 #[cfg(test)]

@@ -1,5 +1,7 @@
 mod runtime;
 
+use alloy_dyn_abi::{DynSolValue, JsonAbiExt};
+use alloy_json_abi::JsonAbi;
 use fp_evm::{CreateInfo, ExitReason};
 use frame_support::sp_runtime;
 use frame_support::traits::fungible::Mutate;
@@ -15,6 +17,48 @@ pub type AccountIdFor<R> = <R as frame_system::Config>::AccountId;
 pub type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 
 pub const DEFAULT_ACCOUNT: H160 = H160::repeat_byte(1);
+
+pub struct EvmContract {
+    address: H160,
+    abi: JsonAbi,
+    pub sandbox: EvmSandbox<EvmRuntime>,
+}
+
+impl EvmContract {
+    pub fn init(contract: &str) -> Self {
+        let result =
+            crate::solc::build_contract(&format!("contracts/solidity/{}.sol", contract)).unwrap();
+        let mut sandbox = EvmSandbox::<EvmRuntime>::new();
+
+        let create_args = CreateArgs {
+            source: DEFAULT_ACCOUNT,
+            init: result.code,
+            gas_limit: 1_000_000_000,
+            max_fee_per_gas: U256::from(1_000_000_000),
+            ..Default::default()
+        };
+        let address = sandbox.create(create_args).unwrap();
+        EvmContract {
+            address,
+            abi: result.abi,
+            sandbox,
+        }
+    }
+
+    pub fn call_args(&self, func: &str, args: &[DynSolValue]) -> CallArgs {
+        let func = &self.abi.function(func).unwrap()[0];
+        let data = func.abi_encode_input(args).unwrap();
+
+        CallArgs {
+            source: DEFAULT_ACCOUNT,
+            target: self.address.clone(),
+            input: data,
+            gas_limit: 1_000_000_000,
+            max_fee_per_gas: U256::from(1_000_000_000),
+            ..Default::default()
+        }
+    }
+}
 
 pub struct EvmSandbox<R = EvmRuntime> {
     externalities: TestExternalities,

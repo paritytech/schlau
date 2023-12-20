@@ -4,7 +4,50 @@ use std::{
     process::Command,
 };
 
+use crate::{
+    drink::runtime::{AccountIdFor, MinimalRuntime},
+    drink_api::{CallArgs, CreateArgs, DrinkApi},
+};
 use contract_build::Target;
+use drink_wasm::Weight;
+use parity_scale_codec::Encode;
+use subxt_signer::sr25519::dev;
+
+pub struct SolangContract {
+    pub drink_api: DrinkApi<MinimalRuntime>,
+    contract_account: AccountIdFor<MinimalRuntime>,
+    build_result: BuildResult,
+}
+
+impl SolangContract {
+    pub fn init(name: &str) -> Self {
+        let build_result =
+            build_and_load_contract(&format!("contracts/solidity/{}.sol", name)).unwrap();
+
+        let mut drink_api = DrinkApi::<MinimalRuntime>::new();
+
+        let constructor_selector = build_result.constructor_selector("new").unwrap();
+        let create_args =
+            CreateArgs::<MinimalRuntime>::new(build_result.code.clone(), dev::alice())
+                .with_data(constructor_selector);
+
+        let contract_account = drink_api.instantiate_with_code(create_args).unwrap();
+
+        Self {
+            drink_api,
+            contract_account,
+            build_result,
+        }
+    }
+
+    pub fn call_args<Args: Encode>(&self, message: &str, args: Args) -> CallArgs<MinimalRuntime> {
+        let mut call_data = self.build_result.message_selector(message).unwrap();
+        call_data.append(&mut args.encode());
+
+        CallArgs::<MinimalRuntime>::new(self.contract_account.clone(), dev::alice(), call_data)
+            .with_gas_limit(Weight::MAX)
+    }
+}
 
 /// Builds the Solidity source in `path_to_source_sol`.
 /// Returns the path to the build output directory.

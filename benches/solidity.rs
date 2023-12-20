@@ -36,6 +36,7 @@ fn triangle_number(c: &mut Criterion) {
     let n = 100_000i64;
 
     let mut group = c.benchmark_group(format!("triangle_number_{}", n));
+    group.sample_size(20);
 
     bench_solang!(group, Computation, triangle_number, n);
     bench_evm!(
@@ -52,7 +53,7 @@ fn odd_product(c: &mut Criterion) {
     let n = 100_000i32;
 
     let mut group = c.benchmark_group(format!("odd_product_{}", n));
-    group.sample_size(30);
+    group.sample_size(20);
 
     bench_solang!(group, Computation, odd_product, n);
     bench_evm!(

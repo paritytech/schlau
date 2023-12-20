@@ -4,14 +4,14 @@ use std::{
     process::Command,
 };
 
+use crate::{
+    drink::runtime::{AccountIdFor, MinimalRuntime},
+    drink_api::{CallArgs, CreateArgs, DrinkApi},
+};
 use contract_build::Target;
 use drink_wasm::Weight;
 use parity_scale_codec::Encode;
 use subxt_signer::sr25519::dev;
-use crate::{
-    drink::runtime::{AccountIdFor, MinimalRuntime},
-    drink_api::{CallArgs, CreateArgs, DrinkApi}
-};
 
 pub struct SolangContract {
     pub drink_api: DrinkApi<MinimalRuntime>,

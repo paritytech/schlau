@@ -13,8 +13,8 @@ pub mod computation {
         }
 
         #[ink(message)]
-        pub fn triangle_number(&self, n: i64) {
-            let _res: i64 = (1..=n).fold(0, |sum, x| sum.wrapping_add(x));
+        pub fn triangle_number(&self, n: i64) -> i64 {
+            (1..=n).fold(0, |sum, x| sum.wrapping_add(x))
         }
 
         #[ink(message)]

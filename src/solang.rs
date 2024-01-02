@@ -6,10 +6,10 @@ use std::{
 
 use crate::{
     drink::runtime::{AccountIdFor, MinimalRuntime},
+    drink::Weight,
     drink_api::{CallArgs, CreateArgs, DrinkApi},
 };
 use contract_build::Target;
-use drink_wasm::Weight;
 use parity_scale_codec::Encode;
 use subxt_signer::sr25519::dev;
 

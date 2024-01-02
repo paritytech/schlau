@@ -5,10 +5,8 @@ use std::{
 };
 
 use crate::{
-    drink::{
-        runtime::{AccountIdFor, MinimalRuntime},
-        Weight,
-    },
+    drink::runtime::{AccountIdFor, MinimalRuntime},
+    drink::Weight,
     drink_api::{CallArgs, CreateArgs, DrinkApi},
 };
 use contract_build::Target;

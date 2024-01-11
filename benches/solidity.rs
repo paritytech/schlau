@@ -6,6 +6,7 @@ use alloy_dyn_abi::DynSolValue;
 use alloy_primitives::I256;
 use parity_scale_codec::Encode;
 use schlau::{evm::EvmContract, solang::SolangContract};
+use std::time::Duration;
 
 fn bench_evm(
     group: &mut BenchmarkGroup<WallTime>,
@@ -42,11 +43,12 @@ fn bench_solang<Args: Encode>(
 }
 
 fn triangle_number(c: &mut Criterion) {
-    let n = 100_000i64;
+    let n = 1_000_000i64;
     let n_evm = DynSolValue::Int(I256::try_from(n).unwrap(), 64);
 
     let mut group = c.benchmark_group(format!("triangle_number_{}", n));
-    group.sample_size(20);
+    group.sample_size(30);
+    group.measurement_time(Duration::from_secs(20));
 
     bench_solang(&mut group, "Computation", "triangle_number", n);
     bench_evm(&mut group, "Computation", "triangle_number", &[n_evm]);
@@ -55,11 +57,12 @@ fn triangle_number(c: &mut Criterion) {
 }
 
 fn odd_product(c: &mut Criterion) {
-    let n = 100_000i32;
+    let n = 1_000_000i32;
     let n_evm = DynSolValue::Int(I256::try_from(n).unwrap(), 32);
 
     let mut group = c.benchmark_group(format!("odd_product_{}", n));
-    group.sample_size(20);
+    group.sample_size(30);
+    group.measurement_time(Duration::from_secs(20));
 
     bench_solang(&mut group, "Computation", "odd_product", n);
     bench_evm(&mut group, "Computation", "odd_product", &[n_evm]);

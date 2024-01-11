@@ -34,20 +34,20 @@ macro_rules! ink_contract_bench {
     };
 }
 
-ink_contract_bench!(crypto, Crypto, CryptoRef, sha3, 100);
+ink_contract_bench!(crypto, Crypto, CryptoRef, sha3, 1000);
 ink_contract_bench!(
     computation,
     Computation,
     ComputationRef,
     odd_product,
-    100_000
+    1000000
 );
 ink_contract_bench!(
     computation,
     Computation,
     ComputationRef,
     triangle_number,
-    100_000
+    1000000
 );
 
 criterion_group!(benches, sha3, odd_product, triangle_number);

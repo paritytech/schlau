@@ -18,7 +18,10 @@ fn bench_evm(
 
     let args = evm_contract.call_args(message, args);
 
-    group.bench_function("evm", |b| {
+    let target = schlau::target_str();
+    let bench_name = format!("evm_{}", target);
+
+    group.bench_function(bench_name, |b| {
         b.iter(|| {
             evm_contract.sandbox.call(args.clone()).unwrap();
         })
@@ -35,7 +38,10 @@ fn bench_solang<Args: Encode>(
 
     let args = solang_contract.call_args(message, args);
 
-    group.bench_function("solang", |b| {
+    let target = schlau::target_str();
+    let bench_name = format!("solang_{}", target);
+
+    group.bench_function(bench_name, |b| {
         b.iter(|| {
             solang_contract.drink_api.call(args.clone()).unwrap();
         })

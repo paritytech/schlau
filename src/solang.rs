@@ -100,13 +100,7 @@ pub fn build_and_load_contract<P>(path_to_source_sol: P) -> anyhow::Result<Build
 where
     P: AsRef<Path> + Copy,
 {
-    let target = if cfg!(feature = "wasm") {
-        Target::Wasm
-    } else if cfg!(feature = "riscv") {
-        Target::RiscV
-    } else {
-        panic!("No VM target feature enabled")
-    };
+    let target = crate::target();
     let out_dir = build_contract(path_to_source_sol, target)?;
     let contract_name = path_to_source_sol
         .as_ref()

@@ -26,7 +26,10 @@ macro_rules! ink_contract_bench {
             group.sample_size(30);
             group.measurement_time(std::time::Duration::from_secs(20));
 
-            group.bench_function("ink", |b| {
+            let target = schlau::target_str();
+            let bench_name = format!("ink_{}", target);
+
+            group.bench_function(bench_name, |b| {
                 b.iter(|| ink_drink.drink.call(call_args.clone()).unwrap())
             });
 

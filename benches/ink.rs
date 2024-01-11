@@ -20,12 +20,13 @@ macro_rules! ink_contract_bench {
             let message = contract.$message($args);
             let call_args = CallArgs::from_call_builder(dev::alice(), &message);
 
-            let mut group = c.benchmark_group(contract_name);
+            let group_name = format!("{}_{}", stringify!($message), stringify!($args));
+
+            let mut group = c.benchmark_group(group_name);
             group.sample_size(30);
+            group.measurement_time(std::time::Duration::from_secs(20));
 
-            let bench_name = format!("{}_{}", stringify!($message), stringify!($args));
-
-            group.bench_function(bench_name, |b| {
+            group.bench_function("ink", |b| {
                 b.iter(|| ink_drink.drink.call(call_args.clone()).unwrap())
             });
 

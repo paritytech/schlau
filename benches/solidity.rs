@@ -18,10 +18,7 @@ fn bench_evm(
 
     let args = evm_contract.call_args(message, args);
 
-    let target = schlau::target_str();
-    let bench_name = format!("evm_{}", target);
-
-    group.bench_function(bench_name, |b| {
+    group.bench_function("evm", |b| {
         b.iter(|| {
             evm_contract.sandbox.call(args.clone()).unwrap();
         })
@@ -54,7 +51,7 @@ fn triangle_number(c: &mut Criterion) {
 
     let mut group = c.benchmark_group(format!("triangle_number_{}", n));
     group.sample_size(30);
-    group.measurement_time(Duration::from_secs(20));
+    group.measurement_time(Duration::from_secs(25));
 
     bench_solang(&mut group, "Computation", "triangle_number", n);
     bench_evm(&mut group, "Computation", "triangle_number", &[n_evm]);
@@ -68,7 +65,7 @@ fn odd_product(c: &mut Criterion) {
 
     let mut group = c.benchmark_group(format!("odd_product_{}", n));
     group.sample_size(30);
-    group.measurement_time(Duration::from_secs(20));
+    group.measurement_time(Duration::from_secs(25));
 
     bench_solang(&mut group, "Computation", "odd_product", n);
     bench_evm(&mut group, "Computation", "odd_product", &[n_evm]);

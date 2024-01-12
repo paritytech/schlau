@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use ink::env::DefaultEnvironment;
 use subxt_signer::sr25519::dev;
 
@@ -17,41 +17,43 @@ macro_rules! ink_contract_bench {
                 &mut $contract_ref::new(),
             );
 
-            let message = contract.$message($args);
-            let call_args = CallArgs::from_call_builder(dev::alice(), &message);
+            // let group_name = format!("{}_{}", stringify!($message), stringify!($args));
 
-            let group_name = format!("{}_{}", stringify!($message), stringify!($args));
-
-            let mut group = c.benchmark_group(group_name);
+            let mut group = c.benchmark_group(stringify!($message));
             group.sample_size(30);
             group.measurement_time(std::time::Duration::from_secs(20));
 
-            let target = schlau::target_str();
-            let bench_name = format!("ink_{}", target);
+            for args in $args {
+                let message = contract.$message(args);
+                let call_args = CallArgs::from_call_builder(dev::alice(), &message);
 
-            group.bench_function(bench_name, |b| {
-                b.iter(|| ink_drink.drink.call(call_args.clone()).unwrap())
-            });
+                let parameter = args.to_string();
+                let id = BenchmarkId::new(&format!("ink({})", schlau::target_str()), parameter);
+
+                group.bench_function(id, |b| {
+                    b.iter(|| ink_drink.drink.call(call_args.clone()).unwrap())
+                });
+            }
 
             group.finish()
         }
     };
 }
 
-ink_contract_bench!(crypto, Crypto, CryptoRef, sha3, 1000);
+ink_contract_bench!(crypto, Crypto, CryptoRef, sha3, [100, 200, 400, 800]);
 ink_contract_bench!(
     computation,
     Computation,
     ComputationRef,
     odd_product,
-    1000000
+    [100_000, 200_000, 400_000, 800_000]
 );
 ink_contract_bench!(
     computation,
     Computation,
     ComputationRef,
     triangle_number,
-    1000000
+    [100_000, 200_000, 400_000, 800_000]
 );
 
 criterion_group!(benches, sha3, odd_product, triangle_number);

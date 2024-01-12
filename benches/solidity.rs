@@ -67,23 +67,23 @@ fn odd_product(c: &mut Criterion) {
     group.finish()
 }
 
-fn mimc_sponge(c: &mut Criterion) {
+fn remainders(c: &mut Criterion) {
     let args_scale = &[sp_core::U256::from(1), sp_core::U256::from(2)];
     let args_evm = &[
         DynSolValue::Uint(U256::from(1), 256),
         DynSolValue::Uint(U256::from(2), 256),
     ];
 
-    let mut group = c.benchmark_group("mimc");
+    let mut group = c.benchmark_group("remainders");
     group.sample_size(20);
 
-    bench_solang(&mut group, "NativeHasher", "MiMCSponge", args_scale);
-    bench_evm(&mut group, "NativeHasher", "MiMCSponge", args_evm);
+    bench_solang(&mut group, "Arithmetics", "remainders", args_scale);
+    bench_evm(&mut group, "Arithmetics", "remainders", args_evm);
 
     group.finish()
 }
 
 criterion_group!(computation, odd_product, triangle_number);
-criterion_group!(hashing, mimc_sponge);
+criterion_group!(arithmetics, remainders);
 
-criterion_main!(computation, hashing);
+criterion_main!(computation, arithmetics);

@@ -17,8 +17,6 @@ macro_rules! ink_contract_bench {
                 &mut $contract_ref::new(),
             );
 
-            // let group_name = format!("{}_{}", stringify!($message), stringify!($args));
-
             let mut group = c.benchmark_group(stringify!($message));
             group.sample_size(30);
             group.measurement_time(std::time::Duration::from_secs(23));

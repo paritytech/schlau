@@ -21,7 +21,7 @@ macro_rules! ink_contract_bench {
 
             let mut group = c.benchmark_group(stringify!($message));
             group.sample_size(30);
-            group.measurement_time(std::time::Duration::from_secs(20));
+            group.measurement_time(std::time::Duration::from_secs(23));
 
             for args in $args {
                 let message = contract.$message(args);

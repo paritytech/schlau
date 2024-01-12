@@ -84,7 +84,7 @@ fn odd_product(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("odd_product");
     group.sample_size(30);
-    group.measurement_time(Duration::from_secs(25));
+    group.measurement_time(Duration::from_secs(40));
 
     bench_solang(&mut group, "Computation", "odd_product", &ns);
     bench_evm(&mut group, "Computation", "odd_product", &ns_evm);

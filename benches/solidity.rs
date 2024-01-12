@@ -1,5 +1,5 @@
 use criterion::{
-    criterion_group, criterion_main, measurement::WallTime, BenchmarkGroup, Criterion,
+    criterion_group, criterion_main, measurement::WallTime, BenchmarkGroup, BenchmarkId, Criterion,
 };
 
 use alloy_dyn_abi::DynSolValue;
@@ -12,63 +12,82 @@ fn bench_evm(
     group: &mut BenchmarkGroup<WallTime>,
     contract: &str,
     message: &str,
-    args: &[DynSolValue],
+    args: &[(Vec<DynSolValue>, String)],
 ) {
     let mut evm_contract = EvmContract::init(contract);
 
-    let args = evm_contract.call_args(message, args);
+    for (args, parameter) in args {
+        let args = evm_contract.call_args(message, args);
+        let id = BenchmarkId::new("evm", parameter);
 
-    group.bench_function("evm", |b| {
-        b.iter(|| {
-            evm_contract.sandbox.call(args.clone()).unwrap();
-        })
-    });
+        group.bench_function(id, |b| {
+            b.iter(|| {
+                evm_contract.sandbox.call(args.clone()).unwrap();
+            })
+        });
+    }
 }
 
 fn bench_solang<Args: Encode>(
     group: &mut BenchmarkGroup<WallTime>,
     contract: &str,
     message: &str,
-    args: Args,
+    args: &[(Args, String)],
 ) {
     let mut solang_contract = SolangContract::init(contract);
 
-    let args = solang_contract.call_args(message, args);
+    for (args, parameter) in args {
+        let args = solang_contract.call_args(message, args);
+        let id = BenchmarkId::new(&format!("solang({})", schlau::target_str()), parameter);
 
-    let target = schlau::target_str();
-    let bench_name = format!("solang_{}", target);
-
-    group.bench_function(bench_name, |b| {
-        b.iter(|| {
-            solang_contract.drink_api.call(args.clone()).unwrap();
-        })
-    });
+        group.bench_function(id, |b| {
+            b.iter(|| {
+                solang_contract.drink_api.call(args.clone()).unwrap();
+            })
+        });
+    }
 }
 
 fn triangle_number(c: &mut Criterion) {
-    let n = 1_000_000i64;
-    let n_evm = DynSolValue::Int(I256::try_from(n).unwrap(), 64);
+    let ns = [100_000i64, 200_000, 400_000, 800_000, 1_600_000].map(|n| (n, n.to_string()));
+    let ns_evm = ns
+        .clone()
+        .map(|(n, display)| {
+            (
+                vec![DynSolValue::Int(I256::try_from(n).unwrap(), 64)],
+                display,
+            )
+        })
+        .to_vec();
 
-    let mut group = c.benchmark_group(format!("triangle_number_{}", n));
+    let mut group = c.benchmark_group("triangle_number");
     group.sample_size(30);
     group.measurement_time(Duration::from_secs(25));
 
-    bench_solang(&mut group, "Computation", "triangle_number", n);
-    bench_evm(&mut group, "Computation", "triangle_number", &[n_evm]);
+    bench_solang(&mut group, "Computation", "triangle_number", &ns);
+    bench_evm(&mut group, "Computation", "triangle_number", &ns_evm);
 
     group.finish()
 }
 
 fn odd_product(c: &mut Criterion) {
-    let n = 1_000_000i32;
-    let n_evm = DynSolValue::Int(I256::try_from(n).unwrap(), 32);
+    let ns = [100_000i32, 200_000, 400_000, 800_000, 1_600_000].map(|n| (n, n.to_string()));
+    let ns_evm = ns
+        .clone()
+        .map(|(n, display)| {
+            (
+                vec![DynSolValue::Int(I256::try_from(n).unwrap(), 32)],
+                display,
+            )
+        })
+        .to_vec();
 
-    let mut group = c.benchmark_group(format!("odd_product_{}", n));
+    let mut group = c.benchmark_group("odd_product");
     group.sample_size(30);
     group.measurement_time(Duration::from_secs(25));
 
-    bench_solang(&mut group, "Computation", "odd_product", n);
-    bench_evm(&mut group, "Computation", "odd_product", &[n_evm]);
+    bench_solang(&mut group, "Computation", "odd_product", &ns);
+    bench_evm(&mut group, "Computation", "odd_product", &ns_evm);
 
     group.finish()
 }

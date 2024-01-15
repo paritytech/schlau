@@ -11,17 +11,17 @@ macro_rules! ink_contract_bench {
 
             let contract_name = stringify!($name);
 
-            let mut ink_drink = InkDrink::<DefaultEnvironment, MinimalRuntime>::new();
-            let contract = ink_drink.build_and_instantiate::<_, $contract, _, _>(
-                &format!("contracts/ink/{}/Cargo.toml", contract_name),
-                &mut $contract_ref::new(),
-            );
-
             let mut group = c.benchmark_group(stringify!($message));
             group.sample_size(30);
             group.measurement_time(std::time::Duration::from_secs(23));
 
             for args in $args {
+                let mut ink_drink = InkDrink::<DefaultEnvironment, MinimalRuntime>::new();
+                let contract = ink_drink.build_and_instantiate::<_, $contract, _, _>(
+                    &format!("contracts/ink/{}/Cargo.toml", contract_name),
+                    &mut $contract_ref::new(),
+                );
+
                 let message = contract.$message(args);
                 let call_args = CallArgs::from_call_builder(dev::alice(), &message);
 

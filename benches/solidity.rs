@@ -14,9 +14,9 @@ fn bench_evm(
     message: &str,
     args: &[(Vec<DynSolValue>, String)],
 ) {
-    let mut evm_contract = EvmContract::init(contract);
-
     for (args, parameter) in args {
+        let mut evm_contract = EvmContract::init(contract);
+
         let args = evm_contract.call_args(message, args);
         let id = BenchmarkId::new("evm", parameter);
 
@@ -34,9 +34,9 @@ fn bench_solang<Args: Encode>(
     message: &str,
     args: &[(Args, String)],
 ) {
-    let mut solang_contract = SolangContract::init(contract);
-
     for (args, parameter) in args {
+        let mut solang_contract = SolangContract::init(contract);
+
         let args = solang_contract.call_args(message, args);
         let id = BenchmarkId::new(&format!("solang({})", schlau::target_str()), parameter);
 

@@ -67,9 +67,7 @@ where
         Target::Wasm => "polkadot",
     };
 
-    let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-
-    let bin_path = PathBuf::from(manifest_dir).join("bin").join("solang");
+    let bin_path = PathBuf::from("bin").join("solang");
 
     let out_dir = path_to_source_sol
         .as_ref()

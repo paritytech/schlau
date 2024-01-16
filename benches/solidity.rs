@@ -108,8 +108,8 @@ fn remainders(c: &mut Criterion) {
     let mut group = c.benchmark_group("remainders");
     group.sample_size(20);
 
-    bench_solang(&mut group, "Arithmetics", "remainders", &args_scale);
     bench_evm(&mut group, "Arithmetics", "remainders", &args_evm);
+    bench_solang(&mut group, "Arithmetics", "remainders", &args_scale);
 
     group.finish()
 }

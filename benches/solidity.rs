@@ -64,8 +64,8 @@ fn triangle_number(c: &mut Criterion) {
     group.sample_size(30);
     group.measurement_time(Duration::from_secs(40));
 
-    bench_solang(&mut group, "Computation", "triangle_number", &ns);
     bench_evm(&mut group, "Computation", "triangle_number", &ns_evm);
+    bench_solang(&mut group, "Computation", "triangle_number", &ns);
 
     group.finish()
 }
@@ -86,8 +86,8 @@ fn odd_product(c: &mut Criterion) {
     group.sample_size(30);
     group.measurement_time(Duration::from_secs(40));
 
-    bench_solang(&mut group, "Computation", "odd_product", &ns);
     bench_evm(&mut group, "Computation", "odd_product", &ns_evm);
+    bench_solang(&mut group, "Computation", "odd_product", &ns);
 
     group.finish()
 }

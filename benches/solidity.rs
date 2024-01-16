@@ -49,7 +49,7 @@ fn bench_solang<Args: Encode>(
 }
 
 fn triangle_number(c: &mut Criterion) {
-    let ns = [100_000i64, 200_000, 400_000, 800_000, 1_600_000].map(|n| (n, n.to_string()));
+    let ns = [100_000i64, 200_000, 400_000, 800_000].map(|n| (n, n.to_string()));
     let ns_evm = ns
         .clone()
         .map(|(n, display)| {

@@ -58,13 +58,7 @@ where
         <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
         Args: Encode + Clone,
     {
-        let target = if cfg!(feature = "wasm") {
-            Target::Wasm
-        } else if cfg!(feature = "riscv") {
-            Target::RiscV
-        } else {
-            panic!("No VM target feature enabled")
-        };
+        let target = crate::target();
         let build_result = build_contract(contract, target).expect("Error building contract");
         let code = std::fs::read(build_result).expect("Error loading contract");
 

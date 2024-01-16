@@ -1,6 +1,5 @@
 use alloy_json_abi::JsonAbi;
 use std::{
-    env,
     path::{Path, PathBuf},
     process::Command,
 };
@@ -11,9 +10,7 @@ pub fn build_contract<P>(path_to_source_sol: P) -> anyhow::Result<BuildResult>
 where
     P: AsRef<Path> + Copy,
 {
-    let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
-
-    let bin_path = PathBuf::from(manifest_dir).join("bin").join("solc");
+    let bin_path = PathBuf::from("bin").join("solc");
 
     let abi_str =
         run_and_extract_output(path_to_source_sol, &bin_path, "--abi", "Contract JSON ABI")?;

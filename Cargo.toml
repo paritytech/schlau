@@ -60,6 +60,7 @@ harness = false
 
 [features]
 default = []
+evm = []
 wasm = [
     "drink-wasm",
 ]

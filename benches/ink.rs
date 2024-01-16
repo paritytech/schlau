@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use ink::env::DefaultEnvironment;
 use subxt_signer::sr25519::dev;
 
@@ -11,43 +11,47 @@ macro_rules! ink_contract_bench {
 
             let contract_name = stringify!($name);
 
-            let mut ink_drink = InkDrink::<DefaultEnvironment, MinimalRuntime>::new();
-            let contract = ink_drink.build_and_instantiate::<_, $contract, _, _>(
-                &format!("contracts/ink/{}/Cargo.toml", contract_name),
-                &mut $contract_ref::new(),
-            );
-
-            let message = contract.$message($args);
-            let call_args = CallArgs::from_call_builder(dev::alice(), &message);
-
-            let mut group = c.benchmark_group(contract_name);
+            let mut group = c.benchmark_group(stringify!($message));
             group.sample_size(30);
+            group.measurement_time(std::time::Duration::from_secs(23));
 
-            let bench_name = format!("{}_{}", stringify!($message), stringify!($args));
+            for args in $args {
+                let mut ink_drink = InkDrink::<DefaultEnvironment, MinimalRuntime>::new();
+                let contract = ink_drink.build_and_instantiate::<_, $contract, _, _>(
+                    &format!("contracts/ink/{}/Cargo.toml", contract_name),
+                    &mut $contract_ref::new(),
+                );
 
-            group.bench_function(bench_name, |b| {
-                b.iter(|| ink_drink.drink.call(call_args.clone()).unwrap())
-            });
+                let message = contract.$message(args);
+                let call_args = CallArgs::from_call_builder(dev::alice(), &message);
+
+                let parameter = args.to_string();
+                let id = BenchmarkId::new(&format!("ink({})", schlau::target_str()), parameter);
+
+                group.bench_function(id, |b| {
+                    b.iter(|| ink_drink.drink.call(call_args.clone()).unwrap())
+                });
+            }
 
             group.finish()
         }
     };
 }
 
-ink_contract_bench!(crypto, Crypto, CryptoRef, sha3, 100);
+ink_contract_bench!(crypto, Crypto, CryptoRef, sha3, [100, 200, 400, 800]);
 ink_contract_bench!(
     computation,
     Computation,
     ComputationRef,
     odd_product,
-    100_000
+    [100_000, 200_000, 400_000, 800_000]
 );
 ink_contract_bench!(
     computation,
     Computation,
     ComputationRef,
     triangle_number,
-    100_000
+    [100_000, 200_000, 400_000, 800_000]
 );
 
 criterion_group!(benches, sha3, odd_product, triangle_number);

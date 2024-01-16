@@ -14,17 +14,19 @@ fn bench_evm(
     message: &str,
     args: &[(Vec<DynSolValue>, String)],
 ) {
-    for (args, parameter) in args {
-        let mut evm_contract = EvmContract::init(contract);
+    if cfg!(feature = "evm") {
+        for (args, parameter) in args {
+            let mut evm_contract = EvmContract::init(contract);
 
-        let args = evm_contract.call_args(message, args);
-        let id = BenchmarkId::new("evm", parameter);
+            let args = evm_contract.call_args(message, args);
+            let id = BenchmarkId::new("evm", parameter);
 
-        group.bench_function(id, |b| {
-            b.iter(|| {
-                evm_contract.sandbox.call(args.clone()).unwrap();
-            })
-        });
+            group.bench_function(id, |b| {
+                b.iter(|| {
+                    evm_contract.sandbox.call(args.clone()).unwrap();
+                })
+            });
+        }
     }
 }
 

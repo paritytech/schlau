@@ -23,7 +23,8 @@ macro_rules! ink_contract_bench {
                 );
 
                 let message = contract.$message(args);
-                let call_args = CallArgs::from_call_builder(dev::alice(), &message);
+                let call_args =
+                    CallArgs::from_call_builder(dev::alice(), &message).with_max_gas_limit();
 
                 let parameter = args.to_string();
                 let id = BenchmarkId::new(&format!("ink({})", schlau::target_str()), parameter);
@@ -38,7 +39,7 @@ macro_rules! ink_contract_bench {
     };
 }
 
-ink_contract_bench!(crypto, Crypto, CryptoRef, sha3, [100, 200, 400, 800]);
+ink_contract_bench!(crypto, Crypto, CryptoRef, sha3, [2000, 4000, 8000]);
 ink_contract_bench!(
     computation,
     Computation,

@@ -13,7 +13,6 @@ macro_rules! ink_contract_bench {
 
             let mut group = c.benchmark_group(stringify!($message));
             group.sample_size(30);
-            group.measurement_time(std::time::Duration::from_secs(23));
 
             for args in $args {
                 let mut ink_drink = InkDrink::<DefaultEnvironment, MinimalRuntime>::new();
@@ -52,7 +51,7 @@ ink_contract_bench!(
     Computation,
     ComputationRef,
     triangle_number,
-    [100_000, 200_000, 400_000, 800_000]
+    [5_000_000, 10_000_000, 20_000_000]
 );
 
 criterion_group!(benches, sha3, odd_product, triangle_number);

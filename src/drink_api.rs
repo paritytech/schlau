@@ -203,6 +203,10 @@ where
         self.gas_limit = Some(gas_limit);
         self
     }
+
+    pub fn with_max_gas_limit(self) -> Self {
+        self.with_gas_limit(Weight::from_parts(u64::MAX, u64::MAX))
+    }
 }
 
 fn keypair_to_account<AccountId: From<[u8; 32]>>(keypair: &Keypair) -> AccountId {

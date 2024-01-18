@@ -14,13 +14,21 @@ pub mod computation {
 
         #[ink(message)]
         pub fn triangle_number(&self, n: i64) -> i64 {
-            (1..=n).fold(0, |sum, x| sum.wrapping_add(x))
+            let mut sum: i64 = 0;
+            for x in 1..=n {
+                sum = sum.wrapping_add(x);
+            }
+            sum
         }
 
         #[ink(message)]
         #[allow(clippy::arithmetic_side_effects)]
         pub fn odd_product(&self, n: i32) -> i64 {
-            (1..=n).fold(1, |prod, x| prod.wrapping_mul(2 * x as i64 - 1))
+            let mut prod: i64 = 1;
+            for x in 1..=n {
+                prod = prod.wrapping_mul(2 * x as i64 - 1);
+            }
+            prod
         }
     }
 }

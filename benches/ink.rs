@@ -45,7 +45,7 @@ ink_contract_bench!(
     Computation,
     ComputationRef,
     odd_product,
-    [100_000, 200_000, 400_000, 800_000]
+    [2_000_000, 4_000_000, 8_000_000]
 );
 ink_contract_bench!(
     computation,

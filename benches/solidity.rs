@@ -9,7 +9,6 @@ use schlau::{
     evm::{EvmContract, ACCOUNTS},
     solang::SolangContract,
 };
-use std::time::Duration;
 
 fn bench_evm(
     group: &mut BenchmarkGroup<WallTime>,
@@ -60,7 +59,7 @@ fn bench_solang<Args: Encode>(
 }
 
 fn triangle_number(c: &mut Criterion) {
-    let ns = [1_000_000i64, 2_000_000, 4_000_000].map(|n| (n, n.to_string()));
+    let ns = [3_000_000i64, 6_000_000, 12_000_000].map(|n| (n, n.to_string()));
     let ns_evm = ns
         .clone()
         .map(|(n, display)| {
@@ -73,7 +72,6 @@ fn triangle_number(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("triangle_number");
     group.sample_size(30);
-    group.measurement_time(Duration::from_secs(40));
 
     bench_evm(&mut group, "Computation", "triangle_number", &ns_evm);
     bench_solang(&mut group, "Computation", "triangle_number", &ns);
@@ -82,7 +80,7 @@ fn triangle_number(c: &mut Criterion) {
 }
 
 fn odd_product(c: &mut Criterion) {
-    let ns = [500_000, 1_000_000, 2_000_000].map(|n| (n, n.to_string()));
+    let ns = [2_000_000i32, 4_000_000, 8_000_000].map(|n| (n, n.to_string()));
     let ns_evm = ns
         .clone()
         .map(|(n, display)| {
@@ -95,7 +93,6 @@ fn odd_product(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("odd_product");
     group.sample_size(30);
-    group.measurement_time(Duration::from_secs(40));
 
     bench_evm(&mut group, "Computation", "odd_product", &ns_evm);
     bench_solang(&mut group, "Computation", "odd_product", &ns);

@@ -51,7 +51,7 @@ ink_contract_bench!(
     Computation,
     ComputationRef,
     triangle_number,
-    [5_000_000, 10_000_000, 20_000_000]
+    [3_000_000, 6_000_000, 12_000_000]
 );
 
 criterion_group!(benches, sha3, odd_product, triangle_number);

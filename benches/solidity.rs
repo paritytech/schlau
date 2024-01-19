@@ -60,7 +60,7 @@ fn bench_solang<Args: Encode>(
 }
 
 fn triangle_number(c: &mut Criterion) {
-    let ns = [100_000i64, 200_000, 400_000, 800_000].map(|n| (n, n.to_string()));
+    let ns = [1_000_000i64, 2_000_000, 4_000_000].map(|n| (n, n.to_string()));
     let ns_evm = ns
         .clone()
         .map(|(n, display)| {
@@ -125,7 +125,7 @@ fn remainders(c: &mut Criterion) {
     group.finish()
 }
 
-criterion_group!(computation, odd_product, triangle_number);
-criterion_group!(arithmetics, remainders);
+criterion_group!(computation, triangle_number);
+// criterion_group!(arithmetics, remainders);
 
-criterion_main!(computation, arithmetics);
+criterion_main!(computation);

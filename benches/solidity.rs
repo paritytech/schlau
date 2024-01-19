@@ -82,7 +82,7 @@ fn triangle_number(c: &mut Criterion) {
 }
 
 fn odd_product(c: &mut Criterion) {
-    let ns = [100_000i32, 200_000, 400_000, 800_000].map(|n| (n, n.to_string()));
+    let ns = [500_000, 1_000_000, 2_000_000].map(|n| (n, n.to_string()));
     let ns_evm = ns
         .clone()
         .map(|(n, display)| {

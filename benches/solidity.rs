@@ -5,7 +5,10 @@ use criterion::{
 use alloy_dyn_abi::DynSolValue;
 use alloy_primitives::{I256, U256};
 use parity_scale_codec::Encode;
-use schlau::{evm::EvmContract, solang::SolangContract};
+use schlau::{
+    evm::{EvmContract, ACCOUNTS},
+    solang::SolangContract,
+};
 use std::time::Duration;
 
 fn bench_evm(
@@ -18,12 +21,18 @@ fn bench_evm(
         for (args, parameter) in args {
             let mut evm_contract = EvmContract::init(contract);
 
-            let args = evm_contract.call_args(message, args);
             let id = BenchmarkId::new("evm", parameter);
+            let args = evm_contract.call_args(message, &args.clone());
+            let mut account_index = 0;
 
             group.bench_function(id, |b| {
                 b.iter(|| {
-                    evm_contract.sandbox.call(args.clone()).unwrap();
+                    let mut args = args.clone();
+                    // use a different account to avoid `BalanceLow`
+                    args.source = ACCOUNTS[account_index];
+                    account_index = (account_index + 1) % ACCOUNTS.len();
+
+                    evm_contract.sandbox.call(args).unwrap();
                 })
             });
         }

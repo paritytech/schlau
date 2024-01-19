@@ -16,7 +16,16 @@ pub use runtime::EvmRuntime;
 pub type AccountIdFor<R> = <R as frame_system::Config>::AccountId;
 pub type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 
-pub const DEFAULT_ACCOUNT: H160 = H160::repeat_byte(1);
+pub const ACCOUNTS: [H160; 8] = [
+    H160::repeat_byte(0),
+    H160::repeat_byte(1),
+    H160::repeat_byte(2),
+    H160::repeat_byte(3),
+    H160::repeat_byte(4),
+    H160::repeat_byte(5),
+    H160::repeat_byte(6),
+    H160::repeat_byte(7),
+];
 
 pub struct EvmContract {
     address: H160,
@@ -31,7 +40,7 @@ impl EvmContract {
         let mut sandbox = EvmSandbox::<EvmRuntime>::new();
 
         let create_args = CreateArgs {
-            source: DEFAULT_ACCOUNT,
+            source: ACCOUNTS[0],
             init: result.code,
             gas_limit: 1_000_000_000,
             max_fee_per_gas: U256::from(1_000_000_000),
@@ -50,7 +59,7 @@ impl EvmContract {
         let data = func.abi_encode_input(args).unwrap();
 
         CallArgs {
-            source: DEFAULT_ACCOUNT,
+            source: ACCOUNTS[0],
             target: self.address.clone(),
             input: data,
             gas_limit: 1_000_000_000,
@@ -67,7 +76,7 @@ pub struct EvmSandbox<R = EvmRuntime> {
 
 impl<R> EvmSandbox<R>
 where
-    R: pallet_evm::Config + pallet_balances::Config,
+    R: pallet_evm::Config + pallet_balances::Config + pallet_balances::Config<Balance = u64>,
     AccountIdFor<R>: From<H160> + Into<H160>,
     BalanceOf<R>: From<u64>,
 {
@@ -78,10 +87,10 @@ where
 
         // initialize the balance of the default account
         pallet_balances::GenesisConfig::<R> {
-            balances: vec![(
-                AccountIdFor::<R>::from(DEFAULT_ACCOUNT),
-                BalanceOf::<R>::from(u64::MAX),
-            )],
+            balances: ACCOUNTS
+                .iter()
+                .map(|acc| (AccountIdFor::<R>::from(acc.clone()), u64::MAX))
+                .collect(),
         }
         .assimilate_storage(&mut storage)
         .unwrap();

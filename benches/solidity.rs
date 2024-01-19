@@ -125,7 +125,7 @@ fn remainders(c: &mut Criterion) {
     group.finish()
 }
 
-criterion_group!(computation, triangle_number);
-// criterion_group!(arithmetics, remainders);
+criterion_group!(computation, odd_product, triangle_number);
+criterion_group!(arithmetics, remainders);
 
 criterion_main!(computation);

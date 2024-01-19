@@ -125,4 +125,4 @@ fn remainders(c: &mut Criterion) {
 criterion_group!(computation, odd_product, triangle_number);
 criterion_group!(arithmetics, remainders);
 
-criterion_main!(computation);
+criterion_main!(computation, arithmetics);

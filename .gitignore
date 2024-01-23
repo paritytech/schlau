@@ -4,7 +4,10 @@ contracts/**/Cargo.lock
 contracts/**/*.bin
 contracts/**/*.wasm
 contracts/**/*.contract
+contracts/solidity/node_modules
 solang-llvm/llvm-project
 solang-llvm/llvm16.0
 solang-llvm/solang
 llvm16.0
+yarn.lock
+yarn-error.log

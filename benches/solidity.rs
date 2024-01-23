@@ -1,6 +1,7 @@
 use criterion::{
     criterion_group, criterion_main, measurement::WallTime, BenchmarkGroup, BenchmarkId, Criterion,
 };
+use std::path::PathBuf;
 
 use alloy_dyn_abi::DynSolValue;
 use alloy_primitives::{I256, U256};
@@ -40,12 +41,20 @@ fn bench_evm(
 
 fn bench_solang<Args: Encode>(
     group: &mut BenchmarkGroup<WallTime>,
+    oz_import_map: bool,
     contract: &str,
     message: &str,
     args: &[(Args, String)],
 ) {
+    let import_map = oz_import_map.then(|| {
+        (
+            "@openzeppelin".to_owned(),
+            PathBuf::from("contracts/solidity/node_modules/@openzeppelin/"),
+        )
+    });
+
     for (args, parameter) in args {
-        let mut solang_contract = SolangContract::init(contract);
+        let mut solang_contract = SolangContract::init(contract, import_map.clone());
 
         let args = solang_contract.call_args(message, args);
         let id = BenchmarkId::new(&format!("solang({})", schlau::target_str()), parameter);
@@ -74,7 +83,7 @@ fn triangle_number(c: &mut Criterion) {
     group.sample_size(30);
 
     bench_evm(&mut group, "Computation", "triangle_number", &ns_evm);
-    bench_solang(&mut group, "Computation", "triangle_number", &ns);
+    bench_solang(&mut group, false, "Computation", "triangle_number", &ns);
 
     group.finish()
 }
@@ -95,7 +104,7 @@ fn odd_product(c: &mut Criterion) {
     group.sample_size(30);
 
     bench_evm(&mut group, "Computation", "odd_product", &ns_evm);
-    bench_solang(&mut group, "Computation", "odd_product", &ns);
+    bench_solang(&mut group, false, "Computation", "odd_product", &ns);
 
     group.finish()
 }
@@ -117,7 +126,7 @@ fn remainders(c: &mut Criterion) {
     group.sample_size(20);
 
     bench_evm(&mut group, "Arithmetics", "remainders", &args_evm);
-    bench_solang(&mut group, "Arithmetics", "remainders", &args_scale);
+    bench_solang(&mut group, false, "Arithmetics", "remainders", &args_scale);
 
     group.finish()
 }

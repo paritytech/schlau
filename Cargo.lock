@@ -2100,6 +2100,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "ed25519_verifier"
+version = "0.1.0"
+dependencies = [
+ "ed25519-dalek",
+ "ink",
+]
+
+[[package]]
 name = "either"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5316,6 +5324,8 @@ dependencies = [
  "crypto",
  "drink 0.8.2",
  "drink 0.8.4",
+ "ed25519-dalek",
+ "ed25519_verifier",
  "fp-evm",
  "frame-support 4.0.0-dev (git+https://github.com/paritytech/polkadot-sdk?branch=master)",
  "frame-system 4.0.0-dev (git+https://github.com/paritytech/polkadot-sdk?branch=master)",

@@ -48,6 +48,7 @@ scale-info = { version = "2.9.0", default-features = false, features = ["derive"
 # ink! contracts
 crypto = { path = "./contracts/ink/crypto", features = ["ink-as-dependency"] }
 computation = { path = "./contracts/ink/computation", features = ["ink-as-dependency"] }
+winter = { path = "./contracts/ink/winter", features = ["ink-as-dependency"] }
 config = "0.13.4"
 
 [[bench]]

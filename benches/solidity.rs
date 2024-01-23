@@ -4,7 +4,7 @@ use criterion::{
 use std::path::PathBuf;
 
 use alloy_dyn_abi::DynSolValue;
-use alloy_primitives::{I256, U256};
+use alloy_primitives::{I256, U160, U256};
 use parity_scale_codec::Encode;
 use schlau::{
     evm::{EvmContract, ACCOUNTS},
@@ -131,7 +131,31 @@ fn remainders(c: &mut Criterion) {
     group.finish()
 }
 
+fn transfer(c: &mut Criterion) {
+    let from = ACCOUNTS[0];
+    let args_scale = [(
+        [from.clone(), sp_core::U256::from(1000)],
+        "transfer".to_owned(),
+    )];
+    let args_evm = [(
+        vec![
+            DynSolValue::Address(U160::from_be_bytes(from.to_fixed_bytes()).into()),
+            DynSolValue::Uint(U256::from(1000), 256),
+        ],
+        "transfer".to_owned(),
+    )];
+
+    let mut group = c.benchmark_group("erc20");
+    group.sample_size(20);
+
+    bench_evm(&mut group, "BenchERC20", "transfer", &args_evm);
+    bench_solang(&mut group, false, "BenchERC20", "transfer", &args_scale);
+
+    group.finish()
+}
+
 criterion_group!(computation, odd_product, triangle_number);
 criterion_group!(arithmetics, remainders);
+criterion_group!(erc20, transfer);
 
-criterion_main!(computation, arithmetics);
+criterion_main!(computation, arithmetics, erc20);

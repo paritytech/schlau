@@ -1,3 +1,3 @@
 contract compile_test {
-    function test() public pure {}
+    function test(uint32 _param) public pure {}
 }

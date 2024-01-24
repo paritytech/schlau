@@ -54,5 +54,7 @@ ink_contract_bench!(
     [3_000_000, 6_000_000, 12_000_000]
 );
 
-criterion_group!(benches, sha3, odd_product, triangle_number);
+ink_contract_bench!(nop, Nop, NopRef, baseline, [0]);
+
+criterion_group!(benches, baseline, sha3, odd_product, triangle_number);
 criterion_main!(benches);

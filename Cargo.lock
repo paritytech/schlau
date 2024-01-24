@@ -3955,6 +3955,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "nop"
+version = "0.1.0"
+dependencies = [
+ "ink",
+]
+
+[[package]]
 name = "nu-ansi-term"
 version = "0.46.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5321,6 +5328,7 @@ dependencies = [
  "frame-system 4.0.0-dev (git+https://github.com/paritytech/polkadot-sdk?branch=master)",
  "hex",
  "ink",
+ "nop",
  "pallet-balances 4.0.0-dev (git+https://github.com/paritytech/polkadot-sdk?branch=master)",
  "pallet-evm",
  "pallet-timestamp 4.0.0-dev (git+https://github.com/paritytech/polkadot-sdk?branch=master)",

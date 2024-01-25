@@ -5,6 +5,8 @@ use criterion::{
 use alloy_dyn_abi::DynSolValue;
 use alloy_primitives::{I256, U256};
 use parity_scale_codec::Encode;
+use rand::distributions::Uniform;
+use rand::Rng;
 use schlau::{
     evm::{EvmContract, ACCOUNTS},
     solang::SolangContract,
@@ -135,7 +137,30 @@ fn baseline(c: &mut Criterion) {
     group.finish()
 }
 
-criterion_group!(computation, baseline, odd_product, triangle_number);
+fn ripemd160(c: &mut Criterion) {
+    let mut rng = rand::thread_rng();
+    let range = Uniform::new(u8::MIN, u8::MAX);
+    let pre: Vec<u8> = (0..8192).map(|_| rng.sample(&range)).collect();
+
+    let args_scale = [(&pre, "random".to_owned())];
+    let args_evm = [(vec![DynSolValue::Bytes(pre.to_vec())], "random".to_owned())];
+
+    let mut group = c.benchmark_group("ripemd160");
+    group.sample_size(20);
+
+    bench_evm(&mut group, "Ripemd160", "rmd160", &args_evm);
+    bench_solang(&mut group, "Ripemd160", "rmd160", &args_scale);
+
+    group.finish()
+}
+
+criterion_group!(
+    computation,
+    baseline,
+    odd_product,
+    triangle_number,
+    ripemd160
+);
 criterion_group!(arithmetics, remainders);
 
 criterion_main!(computation, arithmetics);

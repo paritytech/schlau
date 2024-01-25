@@ -5333,6 +5333,7 @@ dependencies = [
  "pallet-evm",
  "pallet-timestamp 4.0.0-dev (git+https://github.com/paritytech/polkadot-sdk?branch=master)",
  "parity-scale-codec",
+ "rand",
  "scale-info",
  "serde_json",
  "sp-core 21.0.0 (git+https://github.com/paritytech/polkadot-sdk?branch=master)",

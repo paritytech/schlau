@@ -141,10 +141,10 @@ fn fibonacci(c: &mut Criterion) {
 
     for n in [128u32, 192, 256, 320] {
         let args_scale = [(n, format!("{n}"))];
-        bench_solang(&mut group, "FibonacciIterative", "fib", &args_scale);
-
         let args_evm = [(vec![DynSolValue::Uint(U256::from(n), 32)], format!("{n}"))];
+
         bench_evm(&mut group, "FibonacciIterative", "fib", &args_evm);
+        bench_solang(&mut group, "FibonacciIterative", "fib", &args_scale);
     }
 
     group.finish();
@@ -154,10 +154,10 @@ fn fibonacci(c: &mut Criterion) {
 
     for n in [128u32, 192, 256, 320] {
         let args_scale = [(n, format!("{n}"))];
-        bench_solang(&mut group, "FibonacciBinet", "fib", &args_scale);
-
         let args_evm = [(vec![DynSolValue::Uint(U256::from(n), 32)], format!("{n}"))];
+
         bench_evm(&mut group, "FibonacciBinet", "fib", &args_evm);
+        bench_solang(&mut group, "FibonacciBinet", "fib", &args_scale);
     }
 
     group.finish();

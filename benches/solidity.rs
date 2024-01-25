@@ -137,6 +137,34 @@ fn baseline(c: &mut Criterion) {
     group.finish()
 }
 
+fn fibonacci(c: &mut Criterion) {
+    let mut group = c.benchmark_group("fibonacci_iterative");
+    group.sample_size(20);
+
+    for n in [128u32, 192, 256, 320] {
+        let args_scale = [(n, format!("{n}"))];
+        let args_evm = [(vec![DynSolValue::Uint(U256::from(n), 32)], format!("{n}"))];
+
+        bench_evm(&mut group, "FibonacciIterative", "fib", &args_evm);
+        bench_solang(&mut group, "FibonacciIterative", "fib", &args_scale);
+    }
+
+    group.finish();
+
+    let mut group = c.benchmark_group("fibonacci_binet");
+    group.sample_size(20);
+
+    for n in [128u32, 192, 256, 320] {
+        let args_scale = [(n, format!("{n}"))];
+        let args_evm = [(vec![DynSolValue::Uint(U256::from(n), 32)], format!("{n}"))];
+
+        bench_evm(&mut group, "FibonacciBinet", "fib", &args_evm);
+        bench_solang(&mut group, "FibonacciBinet", "fib", &args_scale);
+    }
+
+    group.finish();
+}
+
 fn ripemd160(c: &mut Criterion) {
     let mut rng = rand::thread_rng();
     let range = Uniform::new(u8::MIN, u8::MAX);
@@ -159,6 +187,7 @@ criterion_group!(
     baseline,
     odd_product,
     triangle_number,
+    fibonacci,
     ripemd160
 );
 criterion_group!(arithmetics, remainders);

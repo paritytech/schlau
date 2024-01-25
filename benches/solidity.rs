@@ -126,7 +126,7 @@ fn fibonacci(c: &mut Criterion) {
     let mut group = c.benchmark_group("fibonacci_iterative");
     group.sample_size(20);
 
-    for n in [1u32, 128, 256] {
+    for n in [128u32, 192, 256, 320] {
         let args_scale = [(n, format!("{n}"))];
         bench_solang(&mut group, "FibonacciIterative", "fib", &args_scale);
 
@@ -139,7 +139,7 @@ fn fibonacci(c: &mut Criterion) {
     let mut group = c.benchmark_group("fibonacci_binet");
     group.sample_size(20);
 
-    for n in [1u32, 128, 256] {
+    for n in [128u32, 192, 256, 320] {
         let args_scale = [(n, format!("{n}"))];
         bench_solang(&mut group, "FibonacciBinet", "fib", &args_scale);
 

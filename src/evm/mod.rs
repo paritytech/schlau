@@ -76,9 +76,9 @@ pub struct EvmSandbox<R = EvmRuntime> {
 
 impl<R> EvmSandbox<R>
 where
-    R: pallet_evm::Config + pallet_balances::Config + pallet_balances::Config<Balance = u64>,
+    R: pallet_evm::Config + pallet_balances::Config + pallet_balances::Config<Balance = u128>,
     AccountIdFor<R>: From<H160> + Into<H160>,
-    BalanceOf<R>: From<u64>,
+    BalanceOf<R>: From<u128>,
 {
     pub fn new() -> Self {
         let mut storage = GenesisConfig::<R>::default()
@@ -89,7 +89,7 @@ where
         pallet_balances::GenesisConfig::<R> {
             balances: ACCOUNTS
                 .iter()
-                .map(|acc| (AccountIdFor::<R>::from(acc.clone()), u64::MAX))
+                .map(|acc| (AccountIdFor::<R>::from(acc.clone()), u64::MAX as u128))
                 .collect(),
         }
         .assimilate_storage(&mut storage)
@@ -161,7 +161,7 @@ where
         })
     }
 
-    pub fn call(&mut self, call_args: CallArgs) -> anyhow::Result<()> {
+    pub fn call(&mut self, call_args: CallArgs) -> anyhow::Result<Vec<u8>> {
         let CallArgs {
             source,
             target,
@@ -198,7 +198,7 @@ where
                 anyhow::anyhow!("error invoking call: {}", ser_err)
             })?;
             if let ExitReason::Succeed(_) = info.exit_reason {
-                Ok(())
+                Ok(info.value)
             } else {
                 Err(anyhow::anyhow!("call failed: {:?}", info.exit_reason))
             }

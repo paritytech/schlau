@@ -74,7 +74,7 @@ where
             DEFAULT_GAS_LIMIT,
             storage_deposit_limit,
         );
-        if result.debug_message.len() > 0 {
+        if !result.debug_message.is_empty() {
             tracing::debug!(
                 "debug message {}",
                 String::from_utf8_lossy(&result.debug_message)
@@ -105,7 +105,7 @@ where
             storage_deposit_limit,
             pallet_contracts::Determinism::Enforced,
         );
-        if result.debug_message.len() > 0 {
+        if !result.debug_message.is_empty() {
             tracing::debug!(
                 "debug message: {}",
                 String::from_utf8_lossy(&result.debug_message)

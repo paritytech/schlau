@@ -15,14 +15,14 @@ jobs:
         run: |
           rustup override set stable
           rustup update stable
-      - name: Run EVM tests
-        run: cargo test --features evm
-      - name: Run Wasm tests
-        run: cargo test --features wasm
-      - name: Run RISC-V tests
-        run: cargo test --features riscv
+      - name: Run test
+        run: |
+          cargo test --features evm,wasm
+          cargo test --features riscv
       - name: Lint
-        run: cargo clippy
+        run: |
+          cargo clippy --features evm,wasm --tests --benches
+          cargo clippy --features riscv --tests --benches
       - name: Check formatting
         run: cargo fmt --check
   

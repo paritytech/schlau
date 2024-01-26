@@ -159,4 +159,27 @@ mod tests {
             test_solang(contract, message, &args, returns);
         }
     }
+
+    #[test]
+    fn fibonacci() {
+        let param = 320u32;
+        let expected =
+            hex::decode("000000001febdb7ecc117ac2f78666ef94dfa339b50b38ee029a6bfd0402b645")
+                .unwrap();
+
+        #[cfg(feature = "evm")]
+        {
+            let args = [DynSolValue::Uint(alloy_primitives::U256::from(param), 32)];
+
+            test_evm("FibonacciIterative", "fib", &args, expected.clone());
+            test_evm("FibonacciBinet", "fib", &args, expected.clone());
+        }
+
+        #[cfg(any(feature = "wasm", feature = "riscv"))]
+        {
+            let expected = sp_core::U256::from_big_endian(&expected);
+            test_solang("FibonacciIterative", "fib", &param, expected.encode());
+            test_solang("FibonacciBinet", "fib", &param, expected.encode());
+        }
+    }
 }

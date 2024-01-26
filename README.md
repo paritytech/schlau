@@ -35,6 +35,6 @@ cat ink_wasm.json ink_riscv.json | criterion-table
 
 Ensure that the different implementations of any benchmarked algorithms compute the same results:
 
-```
+```bash
 cargo test --features evm,wasm,riscv
 ```

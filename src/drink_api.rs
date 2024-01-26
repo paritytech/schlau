@@ -114,6 +114,7 @@ where
         match result.result {
             Ok(result) => {
                 if result.did_revert() {
+                    tracing::error!("contract reverted with {:?}", result);
                     return Err(anyhow::anyhow!("Contract execution reverted"));
                 }
                 Ok(result.data)

@@ -1,0 +1,62 @@
+name: Tests and benchmarks
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update Rust
+        run: |
+          rustup override set stable
+          rustup update stable
+      - name: Run EVM tests
+        run: cargo test --features evm
+      - name: Run Wasm tests
+        run: cargo test --features wasm
+      - name: Run RISC-V tests
+        run: cargo test --features riscv
+      - name: Lint
+        run: cargo clippy
+      - name: Check formatting
+        run: cargo fmt --check
+  
+  bench:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update Rust
+        run: |
+          rustup override set stable
+          rustup update stable
+      - name: Install criterion
+        run: |
+          cargo install cargo-criterion
+          cargo install criterion-table
+      - name: Solidity benchmarks
+        run: |
+          cargo criterion --features evm,wasm --bench solidity --message-format=json > solidity_wasm.json
+          cargo criterion --features riscv --bench solidity --message-format=json > solidity_riscv.json
+          cat solidity_wasm.json solidity_riscv.json | criterion-table > benchmarks.md
+      - name: ink benchmarks
+        run: |
+          cargo criterion --features wasm --bench ink --message-format=json > ink_wasm.json
+          cargo criterion --features riscv --bench ink --message-format=json > ink_riscv.json
+          cat ink_wasm.json ink_riscv.json | criterion-table >> benchmarks.md
+      - run: npm install fs
+      - name: comment
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: fs.readFileSync('benchmarks.md')
+            })

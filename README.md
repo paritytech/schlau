@@ -30,3 +30,11 @@ cargo criterion --features riscv --bench ink --message-format=json > ink_riscv.j
 # construct table
 cat ink_wasm.json ink_riscv.json | criterion-table
 ```
+
+## Tests
+
+Ensure that the different implementations of any benchmarked algorithms compute the same results:
+
+```
+cargo test --features evm,wasm,riscv
+```

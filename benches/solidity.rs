@@ -134,7 +134,7 @@ fn remainders(c: &mut Criterion) {
 fn transfer(c: &mut Criterion) {
     let from = ACCOUNTS[0];
     let args_scale = [(
-        [from.clone(), sp_core::U256::from(1000)],
+        (from.clone(), sp_core::U256::from(1000)),
         "transfer".to_owned(),
     )];
     let args_evm = [(
@@ -149,7 +149,7 @@ fn transfer(c: &mut Criterion) {
     group.sample_size(20);
 
     bench_evm(&mut group, "BenchERC20", "transfer", &args_evm);
-    bench_solang(&mut group, false, "BenchERC20", "transfer", &args_scale);
+    bench_solang(&mut group, true, "BenchERC20", "transfer", &args_scale);
 
     group.finish()
 }
@@ -158,4 +158,4 @@ criterion_group!(computation, odd_product, triangle_number);
 criterion_group!(arithmetics, remainders);
 criterion_group!(erc20, transfer);
 
-criterion_main!(computation, arithmetics, erc20);
+criterion_main!(erc20);

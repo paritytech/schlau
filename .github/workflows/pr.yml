@@ -17,6 +17,7 @@ jobs:
         run: |
           rustup override set stable
           rustup update stable
+          rustup component add rust-src --toolchain stable-x86_64-unknown-linux-gnu
       - name: Install RV64E toolchain
         run: |
           wget https://github.com/paritytech/rustc-rv32e-toolchain/releases/download/v1.1.0/rust-rve-nightly-2024-01-05-x86_64-unknown-linux-gnu.tar.zst -O rust-rve-nightly.tar.zst

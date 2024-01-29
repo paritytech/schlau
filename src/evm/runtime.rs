@@ -42,7 +42,7 @@ impl frame_system::Config for EvmRuntime {
     type DbWeight = ();
     type Version = ();
     type PalletInfo = PalletInfo;
-    type AccountData = pallet_balances::AccountData<u64>;
+    type AccountData = pallet_balances::AccountData<u128>;
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
@@ -52,12 +52,12 @@ impl frame_system::Config for EvmRuntime {
 }
 
 parameter_types! {
-    pub const ExistentialDeposit: u64 = 0;
+    pub const ExistentialDeposit: u128 = 1;
 }
 impl pallet_balances::Config for EvmRuntime {
     type RuntimeEvent = RuntimeEvent;
     type WeightInfo = ();
-    type Balance = u64;
+    type Balance = u128;
     type DustRemoval = ();
     type ExistentialDeposit = ExistentialDeposit;
     type AccountStore = System;

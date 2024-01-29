@@ -23,8 +23,6 @@ jobs:
           tar --zstd -xf rust-rve-nightly.tar.zst
           mv rve-nightly ~/.rustup/toolchains/
           rm rust-rve-nightly.tar.zst
-      - name: Install cargo contract
-        run: cargo install --git https://github.com/paritytech/cargo-contract.git --branch at/riscv --force --locked
       - name: Run test
         run: |
           cargo test --workspace --features evm,wasm

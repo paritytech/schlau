@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  bench:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,26 +17,24 @@ jobs:
         run: |
           rustup override set stable
           rustup update stable
+      - name: Install RV64E toolchain
+        run: |
+          wget https://github.com/paritytech/rustc-rv32e-toolchain/releases/download/v1.1.0/rust-rve-nightly-2024-01-05-x86_64-unknown-linux-gnu.tar.zst -O rust-rve-nightly.tar.zst
+          tar --zstd -xf rust-rve-nightly.tar.zst
+          mv rve-nightly ~/.rustup/toolchains/
+          rm rust-rve-nightly.tar.zst
+      - name: Install cargo contract
+        run: cargo install --git https://github.com/paritytech/cargo-contract.git --branch at/riscv --force --locked
       - name: Run test
         run: |
-          cargo test --features evm,wasm
-          cargo test --features riscv
+          cargo test --workspace --features evm,wasm
+          cargo test --workspace --features riscv
       - name: Lint
         run: |
           cargo clippy --features evm,wasm --tests --benches
           cargo clippy --features riscv --tests --benches
       - name: Check formatting
         run: cargo fmt --check
-  
-  bench:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Update Rust
-        run: |
-          rustup override set stable
-          rustup update stable
       - name: Install criterion
         run: |
           cargo install cargo-criterion

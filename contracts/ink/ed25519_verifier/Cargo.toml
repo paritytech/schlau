@@ -1,0 +1,21 @@
+[package]
+name = "ed25519_verifier"
+version = "0.1.0"
+authors = ["[your_name] <[your_email]>"]
+edition = "2021"
+
+[dependencies]
+ink = { git = "https://github.com/paritytech/ink", branch = "at/riscv", package = "ink", default-features = false }
+
+ed25519-dalek = { version = "2.1", default-features = false }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+]
+ink-as-dependency = []
+e2e-tests = []

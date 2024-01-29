@@ -1,4 +1,5 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use ed25519_verifier::ed25519_verifier::{Ed25519Verifier, Ed25519VerifierRef};
 use ink::env::DefaultEnvironment;
 use subxt_signer::sr25519::dev;
 
@@ -38,6 +39,37 @@ macro_rules! ink_contract_bench {
     };
 }
 
+fn ed25519_verify(c: &mut Criterion) {
+    use ed25519_dalek::{Signature, Signer, SigningKey};
+    let signing_key: SigningKey =
+        SigningKey::from_bytes(&ed25519_verifier::ed25519_verifier::EXAMPLE_KEY);
+    let message = b"This is the contracts runtime benchmark. We compare the runtime performance of various Wasm, RISC-V and EVM smart contracts.";
+    let signature: Signature = signing_key.sign(message);
+    let verifying_key = signing_key.verifying_key().to_bytes();
+
+    let contract_name = "ed25519_verifier";
+
+    let mut group = c.benchmark_group("verify");
+    group.sample_size(30);
+
+    let mut ink_drink = InkDrink::<DefaultEnvironment, MinimalRuntime>::new();
+    let contract = ink_drink.build_and_instantiate::<_, Ed25519Verifier, _, _>(
+        &format!("contracts/ink/{}/Cargo.toml", contract_name),
+        &mut Ed25519VerifierRef::new(),
+    );
+
+    let message = contract.verify(verifying_key, signature.to_bytes(), message.to_vec());
+    let call_args = CallArgs::from_call_builder(dev::alice(), &message).with_max_gas_limit();
+
+    let id = BenchmarkId::new(&format!("ink({})", schlau::target_str()), "ed25516_verify");
+
+    group.bench_function(id, |b| {
+        b.iter(|| ink_drink.drink.call(call_args.clone()).unwrap())
+    });
+
+    group.finish()
+}
+
 ink_contract_bench!(crypto, Crypto, CryptoRef, sha3, [2000, 4000, 8000]);
 ink_contract_bench!(
     computation,
@@ -56,5 +88,12 @@ ink_contract_bench!(
 
 ink_contract_bench!(nop, Nop, NopRef, baseline, [0]);
 
-criterion_group!(benches, baseline, sha3, odd_product, triangle_number);
+criterion_group!(
+    benches,
+    baseline,
+    sha3,
+    odd_product,
+    triangle_number,
+    ed25519_verify
+);
 criterion_main!(benches);

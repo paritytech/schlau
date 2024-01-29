@@ -1,3 +1,5 @@
+#![allow(clippy::new_without_default)]
+
 use contract_build::Target;
 
 #[cfg(feature = "riscv")]

@@ -11,7 +11,7 @@ mod tests {
     #[cfg(feature = "evm")]
     fn test_evm(contract: &str, message: &str, args: &[DynSolValue], returndata: Vec<u8>) {
         let mut contract = schlau::evm::EvmContract::init(contract);
-        let args = contract.call_args(message, &args);
+        let args = contract.call_args(message, args);
         assert_eq!(returndata, contract.sandbox.call(args).unwrap());
     }
 

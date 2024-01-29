@@ -60,7 +60,7 @@ impl EvmContract {
 
         CallArgs {
             source: ACCOUNTS[0],
-            target: self.address.clone(),
+            target: self.address,
             input: data,
             gas_limit: 1_000_000_000,
             max_fee_per_gas: U256::from(1_000_000_000),
@@ -89,25 +89,16 @@ where
         pallet_balances::GenesisConfig::<R> {
             balances: ACCOUNTS
                 .iter()
-                .map(|acc| (AccountIdFor::<R>::from(acc.clone()), u64::MAX as u128))
+                .map(|acc| (AccountIdFor::<R>::from(*acc), u64::MAX as u128))
                 .collect(),
         }
         .assimilate_storage(&mut storage)
         .unwrap();
 
-        let sandbox = Self {
+        Self {
             externalities: TestExternalities::new(storage),
             phantom: Default::default(),
-        };
-
-        // sandbox
-        //     .externalities
-        //     // We start the chain from the 1st block, so that events are collected (they are not
-        //     // recorded for the genesis block...).
-        //     .execute_with(|| R::initialize_block(BlockNumberFor::<R>::one(), Default::default()))
-        //     .expect("Error initializing block");
-
-        sandbox
+        }
     }
 
     pub fn execute_with<T>(&mut self, execute: impl FnOnce() -> T) -> T {

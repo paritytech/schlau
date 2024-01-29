@@ -24,6 +24,7 @@ use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
 use subxt_signer::sr25519::{dev, Keypair};
 
+#[allow(clippy::new_without_default)]
 pub struct InkDrink<E: Environment, Runtime: RuntimeT> {
     pub drink: DrinkApi<Runtime>,
     _phantom: PhantomData<E>,

@@ -31,7 +31,7 @@ fn run_and_extract_output<P>(
 where
     P: AsRef<Path> + Copy,
 {
-    let output = Command::new(&bin_path)
+    let output = Command::new(bin_path)
         .arg(arg)
         .arg(path_to_source_sol.as_ref())
         .output()?;

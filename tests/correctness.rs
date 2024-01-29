@@ -24,7 +24,7 @@ mod tests {
 
     #[cfg(any(feature = "wasm", feature = "riscv"))]
     macro_rules! test_ink {
-        ( $name:ident, $contract:ident, $contract_ref:ident, $message:ident, $args:ident, $returns:ident) => {
+        ( $name:ident, $contract:ident, $contract_ref:ident, $message:ident, $returns:expr $(, $args:expr)*) => {
             use ink::env::DefaultEnvironment;
             use schlau::{drink::runtime::MinimalRuntime, drink_api::CallArgs, ink::InkDrink};
             use subxt_signer::sr25519::dev;
@@ -38,7 +38,7 @@ mod tests {
                 &mut $contract_ref::new(),
             );
 
-            let message = contract.$message($args);
+            let message = contract.$message($($args),*);
             let call_args =
                 CallArgs::from_call_builder(dev::alice(), &message).with_max_gas_limit();
 
@@ -51,7 +51,7 @@ mod tests {
     fn crypto_ink_sha3() {
         let param = 1;
         let expected = Result::<u32, ()>::encode(&Ok(1));
-        test_ink!(crypto, Crypto, CryptoRef, sha3, param, expected);
+        test_ink!(crypto, Crypto, CryptoRef, sha3, expected, param);
     }
 
     #[test]
@@ -84,8 +84,8 @@ mod tests {
                 Computation,
                 ComputationRef,
                 odd_product,
-                param,
-                expected
+                expected,
+                param
             );
         }
     }
@@ -120,8 +120,8 @@ mod tests {
                 Computation,
                 ComputationRef,
                 triangle_number,
-                param,
-                expected
+                expected,
+                param
             );
         }
     }
@@ -181,5 +181,26 @@ mod tests {
             test_solang("FibonacciIterative", "fib", &param, expected.encode());
             test_solang("FibonacciBinet", "fib", &param, expected.encode());
         }
+    }
+
+    #[cfg(any(feature = "wasm", feature = "riscv"))]
+    #[test]
+    fn ed25519_dalek_verify() {
+        use ed25519_dalek::{Signature, Signer, SigningKey};
+
+        let message = b"foobar";
+        let signing_key: SigningKey =
+            SigningKey::from_bytes(&ed25519_verifier::ed25519_verifier::EXAMPLE_KEY);
+
+        test_ink!(
+            ed25519_verifier,
+            Ed25519Verifier,
+            Ed25519VerifierRef,
+            verify,
+            Result::<bool, ()>::Ok(true).encode(),
+            signing_key.verifying_key().to_bytes(),
+            signing_key.sign(message).to_bytes(),
+            message.to_vec()
+        );
     }
 }

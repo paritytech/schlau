@@ -2,6 +2,10 @@
 
 #[ink::contract]
 pub mod ed25519_verifier {
+    pub static EXAMPLE_KEY: [u8; 32] = [
+        157, 97, 177, 157, 239, 253, 90, 96, 186, 132, 74, 244, 146, 236, 44, 196, 68, 73, 197,
+        105, 123, 50, 105, 25, 112, 59, 172, 3, 28, 174, 127, 96,
+    ];
     use ed25519_dalek::{Signature, Verifier, VerifyingKey, PUBLIC_KEY_LENGTH};
 
     use ink::prelude::vec::Vec;

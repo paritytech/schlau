@@ -20,7 +20,7 @@ jobs:
           rustup component add rust-src --toolchain stable-x86_64-unknown-linux-gnu
       - name: Install RV64E toolchain
         run: |
-          wget https://github.com/paritytech/rustc-rv32e-toolchain/releases/download/v1.0.0/rust-rve-nightly-2023-04-05-x86_64-unknown-linux-gnu.tar.zst  -O rust-rve-nightly.tar.zst
+          wget https://github.com/paritytech/rustc-rv32e-toolchain/releases/download/v1.1.0/rust-rve-nightly-2024-01-05-x86_64-unknown-linux-gnu.tar.zst -O rust-rve-nightly.tar.zst
           tar --zstd -xf rust-rve-nightly.tar.zst
           mv rve-nightly ~/.rustup/toolchains/rv32e-nightly-2023-04-05
           rm rust-rve-nightly.tar.zst

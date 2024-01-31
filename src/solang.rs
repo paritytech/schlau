@@ -19,9 +19,9 @@ pub struct SolangContract {
 }
 
 impl SolangContract {
-    pub fn init(name: &str) -> Self {
-        let build_result =
-            build_and_load_contract(&format!("contracts/solidity/{}.sol", name)).unwrap();
+    pub fn init(name: &str, import_map: Option<(String, PathBuf)>) -> Self {
+        let path_to_source = PathBuf::from(format!("contracts/solidity/{}.sol", name));
+        let build_result = build_and_load_contract(path_to_source, import_map).unwrap();
 
         let mut drink_api = DrinkApi::<MinimalRuntime>::new();
 
@@ -57,9 +57,13 @@ impl SolangContract {
 /// Where `contract_name` is equal to the name of that contract
 ///
 /// Note: For RiscV the produced contract blob does still have the `.wasm` file extension.
-pub fn build_contract<P>(path_to_source_sol: P, target: Target) -> anyhow::Result<PathBuf>
+pub fn build_contract<P>(
+    path_to_source_sol: P,
+    import_map: Option<(String, P)>,
+    target: Target,
+) -> anyhow::Result<PathBuf>
 where
-    P: AsRef<Path> + Copy,
+    P: AsRef<Path>,
 {
     let target = match target {
         Target::RiscV => "polkadot-riscv",
@@ -73,8 +77,8 @@ where
         .parent()
         .expect("source file is not in root dir");
 
-    match Command::new(&bin_path)
-        .arg("compile")
+    let mut cmd = Command::new(&bin_path);
+    cmd.arg("compile")
         .arg("--target")
         .arg(target)
         .arg("-O")
@@ -84,21 +88,29 @@ where
         .arg("z")
         .arg("-o")
         .arg(out_dir)
-        .arg(path_to_source_sol.as_ref())
-        .output()
-    {
+        .arg(path_to_source_sol.as_ref());
+
+    if let Some((name, path)) = import_map {
+        cmd.arg("--importmap")
+            .arg(format!("{}={}", name, path.as_ref().to_string_lossy()));
+    }
+
+    match cmd.output() {
         Ok(output) if output.status.success() => Ok(out_dir.to_path_buf()),
         Ok(output) => Err(anyhow::anyhow!("Failed to compile contract:\n {output:?}")),
         Err(msg) => Err(anyhow::anyhow!("Failed to execute {bin_path:?}: {msg:?}")),
     }
 }
 
-pub fn build_and_load_contract<P>(path_to_source_sol: P) -> anyhow::Result<BuildResult>
+pub fn build_and_load_contract<P>(
+    path_to_source_sol: P,
+    import_map: Option<(String, P)>,
+) -> anyhow::Result<BuildResult>
 where
-    P: AsRef<Path> + Copy,
+    P: AsRef<Path> + Clone,
 {
     let target = crate::target();
-    let out_dir = build_contract(path_to_source_sol, target)?;
+    let out_dir = build_contract(path_to_source_sol.clone(), import_map, target)?;
     let contract_name = path_to_source_sol
         .as_ref()
         .file_stem()
@@ -165,7 +177,7 @@ mod tests {
     fn can_compile(target: contract_build::Target) {
         let path = PathBuf::from("contracts/solidity/compile_test");
 
-        super::build_contract(&path.with_extension("sol"), target).unwrap();
+        super::build_contract(&path.with_extension("sol"), None, target).unwrap();
 
         let len = fs::read(path.with_extension("wasm"))
             .expect("compiler should produce a contract blob")

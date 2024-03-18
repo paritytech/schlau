@@ -163,12 +163,29 @@ fn fibonacci(c: &mut Criterion) {
     group.finish();
 }
 
+fn ripemd160(c: &mut Criterion) {
+    let mut group = c.benchmark_group("ripemd160");
+    group.sample_size(20);
+
+    for n in [4096, 8192, 12288] {
+        let pre = vec![1; n];
+        let args_scale = [(&pre, format!("{n}"))];
+        let args_evm = [(vec![DynSolValue::Bytes(pre.clone())], format!("{n}"))];
+
+        bench_evm(&mut group, "Ripemd160", "rmd160", &args_evm);
+        bench_solang(&mut group, "Ripemd160", "rmd160", &args_scale);
+    }
+
+    group.finish()
+}
+
 criterion_group!(
     computation,
     baseline,
     odd_product,
     triangle_number,
-    fibonacci
+    fibonacci,
+    ripemd160
 );
 criterion_group!(arithmetics, remainders);
 
